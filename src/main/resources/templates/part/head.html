@@ -1,0 +1,104 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="layui-header " th:fragment="head_old">
+    <ul class="layui-nav" style="position:fixed;width: 100%;">
+        <li class="layui-nav-item">
+            <a>广场</a>
+            <dl class="layui-nav-child">
+                <dd><a href="/article/getall">按热度</a></dd>
+                <dd><a href="/article/getall">按时间</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item ">
+            <a href="javascript:;">文章</a>
+            <dl class="layui-nav-child">
+                <dd><a href="/article/getall">javaweb</a></dd>
+                <dd><a href="/article/getall">sprngboot</a></dd>
+                <dd><a href="/article/getall">layui</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item"><a href="/article/getall">留言</a></li>
+        <li class="layui-nav-item"><a href="/article/getall">相册</a></li>
+        <li class="layui-nav-item">
+            <a href="javascript:;">我的</a>
+            <dl class="layui-nav-child">
+                <dd><a href="/article/getall">邮件管理</a></dd>
+                <dd><a href="/article/getall">消息管理</a></dd>
+                <dd><a href="/user/datapage">资料管理</a></dd>
+                <dd><a href="/user/logout">退出登录</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item"><a href="/article/editor">发表文章</a></li>
+    </ul>
+</div>
+
+<div class="layui-layout-admin layui-header" style="position:fixed;width: 100%;background-color: #393D49;" th:fragment="head">
+    <div class="layui-logo">WENBLOG</div>
+    <!-- 头部区域（可配合layui已有的水平导航） -->
+    <ul class="layui-nav layui-layout-left" th:if="${session.user} ne null">
+        <li class="layui-nav-item">
+            <a href="/article/getall">博客广场</a>
+            <dl class="layui-nav-child">
+                <dd><a href="/article/getall?sort=articleClick-desc">点击最高</a></dd>
+                <dd><a href="/article/getall?sort=articleLike-desc">点赞最多</a></dd>
+                <dd><a href="/article/getall">最新发布</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item">
+            <a href="/article/get/byuser">我的文章</a>
+            <dl class="layui-nav-child">
+                <dd><a href="/article/get/byuser?sort=articleClick-desc">点击最高</a></dd>
+                <dd><a href="/article/get/byuser?sort=articleLike-desc">点赞最多</a></dd>
+                <dd><a href="/article/get/byuser">最新发布</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item"><a href="/article/editor">发表文章</a>
+            <dl class="layui-nav-child">
+                <dd><a href="/article/get/byuser?mode=1">草稿箱</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item">
+            <a href="javascript:;">更多...</a>
+            <dl class="layui-nav-child">
+                <dd><a href="/article/getall">留言板</a></dd>
+                <dd><a href="/article/getall">相册</a></dd>
+                <dd><a href="/article/getall">关于</a></dd>
+            </dl>
+        </li>
+    </ul>
+    <ul class="layui-nav layui-layout-left" th:if="${session.user} eq null">
+        <li class="layui-nav-item"><a href="/article/getall?sort=articleClick-desc">点击最高</a></li>
+        <li class="layui-nav-item"><a href="/article/getall?sort=articleLike-desc">点赞最高</a></li>
+        <li class="layui-nav-item"><a href="/article/getall">最新发布</a></li>
+    </ul>
+    <ul class="layui-nav layui-layout-right" th:if="${session.user} ne null" >
+        <!-- <a href="/user/datapage"><img src="http://t.cn/RCzsdCq" class="layui-nav-img"></a> -->
+        <li class="layui-nav-item">
+            <input type="text" placeholder="点击Enter搜索" id="search" name="search" class="layui-input">
+        </li>
+
+        <li class="layui-nav-item">
+            <a href="javascript:;">
+                <img th:src="${session.user.userImageUrl}" id="headportrait" class="layui-nav-img">
+                <span th:if="${#strings.length(session.user.userName)} gt 8 ">
+                    <span th:text="${#strings.substring(session.user.userName,0,6)}+'...'"></span>
+                </span>
+                <span th:if="${#strings.length(session.user.userName)} le 8 ">
+                    <span th:text="${session.user.userName}"></span>
+                </span>
+            </a>
+            <dl class="layui-nav-child">
+                <dd><a href="/article/getall">邮件管理</a></dd>
+                <dd><a href="/article/getall">消息管理</a></dd>
+                <dd><a href="/user/datapage">资料管理</a></dd>
+                <dd><a href="/user/changePwd">修改密码</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item"><a href="/user/logout">退出</a></li>
+    </ul>
+    <ul class="layui-nav layui-layout-right" th:if="${session.user} eq null">
+        <li class="layui-nav-item"><a href="/user/loginpage">登录</a></li>
+    </ul>
+</div>
+</body>
+</html>

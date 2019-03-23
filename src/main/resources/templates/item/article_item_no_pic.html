@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="article_item_no_pic(article)">
+        <div class="item">
+            <div class="layui-fluid" >
+                <div class="layui-col-xs12">
+                    <div class="item-cont" style="padding-left:10px;padding-bottom: 15px">
+                        <h3><span th:text="${article.articleTitle}"></span>
+                            <button th:if="${article.aNew}" class="layui-btn layui-btn-danger new-icon">
+                                new
+                            </button>
+                        </h3>
+                        <div class="layui-row">
+                            <div class="layui-col-xs6">
+                                <h5>设计文章</h5>
+                            </div>
+                            <div class="layui-col-xs6">
+                                <h5 style="text-align:right" th:if="${#strings.length(article.userName) gt 12}">
+                                    <font color="#393D49">发布者：</font><span th:text="${#strings.substring(article.userName,0,10)}+'...'">未知用户</span></h5>
+                                <h5 style="text-align:right" th:if="${#strings.length(article.userName) le 12}">
+                                    <font color="#393D49">发布者：</font><span th:text="${article.userName}">未知用户</span></h5>
+                            </div>
+                        </div>
+                        <p><span th:text="${article.articleSummary}"></span></p>
+                        <a th:href="@{/article/byUUID(uuid=${article.articleUUID})}" class="go-icon"></a>
+                        <div class="layui-row">
+                            <div class="layui-col-xs4">
+                                <div class="grid-demo">发布于：<span th:text="${#dates.format(article.articleTime,'yyyy-MM-dd')}"></div>
+                            </div>
+                            <div class="layui-col-xs4">
+                                <div class="grid-demo">更新于：<span th:text="${#dates.format(article.lastUpdateTime,'yyyy-MM-dd')}"></div>
+                            </div>
+                            <div class="layui-col-xs2" style="text-align:right">
+                                <span th:if="${article.hasLike}">
+                                    <i class="layui-icon layui-icon-praise" style="font-size: 12px;text-align:right;color: #FF5722" th:text="${article.articleLike}" th:id="${article.articleUUID}" onclick="like(this)"></i>
+                                </span>
+                                <span th:if="${not article.hasLike}">
+                                    <i class="layui-icon layui-icon-praise" style="font-size: 12px;text-align:right" th:text="${article.articleLike}" th:id="${article.articleUUID}" onclick="like(this)"></i>
+                                </span>
+                            </div>
+                            <div class="layui-col-xs2" style="text-align:right">
+                                <span th:if="${article.hasClick}">
+                                    <i class="layui-icon layui-icon-read" style="font-size: 12px;color: #FF5722" th:text="${article.articleClick}"></i>
+                                </span>
+                                <span th:if="${not article.hasClick}">
+                                    <i class="layui-icon layui-icon-read" style="font-size: 12px;" th:text="${article.articleClick}"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

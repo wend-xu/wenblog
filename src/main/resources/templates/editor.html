@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+    <title>编辑系统</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <link rel="stylesheet" href="/editormd/css/editormd.css" />
+    <!-- 页面解析markdown为HTML显示需要的css -->
+    <link rel="stylesheet" href="/editormd/css/editormd.preview.css" />
+</head>
+<body >
+<!-- 弹出框 -->
+<div th:replace="part/head::head"></div>
+<div class="layui-container" style="background-color:#F5F5F5;box-shadow:8px 8px 5px #c2c2c2;padding-top: 80px">
+    <div class="layui-form" style="padding:20px 0 30px 0">
+        <div class="layui-form-item">
+            <label class="layui-form-label">文章标题</label>
+            <div class="layui-input-block">
+                <input type="text" placeholder="请输入文章标题，最大长度120个汉字"  id="title"  name="title" required  lay-verify="required" autocomplete="off" class="layui-input" th:value="${article.articleTitle}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">关键字</label>
+            <div class="layui-input-block">
+                <input type="text" placeholder="请输入关键字,最大长度60个汉字" id="keyword"  name="keyword" autocomplete="off" class="layui-input" th:value="${article.articleKeyword}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" >文章摘要</label>
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" placeholder="请输入简短的摘要,最大长度400个汉字" rows="4" id="summary"  name="summary" autocomplete="off" th:text="${article.articleSummary}" ></textarea>
+            </div>
+        </div>
+        <div th:if="${mode} eq 'new'" class="layui-btn-container" style="margin:10px;text-align: center" >
+            <button id="preview" class="layui-btn" value="0">切换Markdown</button>
+            <button id="showEditor" class="layui-btn">打开编辑器</button>
+            <button id="save" class="layui-btn">暂存草稿</button>
+            <button id="send" class="layui-btn">文章发表</button>
+        </div>
+        <div  th:if="${mode} eq 'edit'" class="layui-btn-container" style="margin:10px;text-align: center">
+            <button id="preview" class="layui-btn" value="0">切换Markdown</button>
+            <button id="showEditor" class="layui-btn">打开编辑器</button>
+            <button id="updateToDraft" class="layui-btn">保存为草稿</button>
+            <button id="updateAndSend" class="layui-btn">保存并发表</button>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">内容预览</label>
+            <div class="layui-input-block" id="div_content_html">
+                <div id="markdownToHTML"  style="width: 95%;" >
+                    <textarea class="layui-textarea"  rows="28" id="content_html"  name="content" autocomplete="off" disabled th:text="${article.articleContent}"></textarea>
+                </div>
+            </div>
+            <div class="layui-input-block" id="div_content_md" hidden>
+                <textarea class="layui-textarea"  rows="28" id="content_md"  name="content" autocomplete="off" disabled th:text="${article.articleContent}"></textarea>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div id="myeditor" style="display: none">
+            <!-- 富文本编辑器 -->
+            <div id="test-editormd"></div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/util/jquery.min.js"></script>
+<script src="/layui/layui.js"></script>
+<script src="/editormd/src/editormd.js"></script>
+
+<!-- 页面markdown解析成HTML需要的js -->
+<script src="/editormd/lib/marked.min.js"></script>
+<script src="/editormd/lib/prettify.min.js"></script>
+<script src="/editormd/lib/raphael.min.js"></script>
+<script src="/editormd/lib/underscore.min.js"></script>
+<script src="/editormd/lib/sequence-diagram.min.js"></script>
+<script src="/editormd/lib/flowchart.min.js"></script>
+<script src="/editormd/lib/jquery.flowchart.min.js"></script>
+
+<script th:inline="javascript">
+    layui.use(['layer', 'jquery','form','element'], function(){
+        var testEditor;
+        var editMode = [[${mode}]];
+
+        if(editMode == "edit"){
+            window.onload = function () {
+               /* $('#title').val([[${article.articleTitle}]]);
+                $('#keyword').val([[${article.articleKeyword}]]);
+                $('#summary').val([[${article.articleSummary}]]);
+                $('#content_html').val([[${article.articleContent}]]);
+                $('#content_md').val([[${article.articleContent}]]);*/
+                editormd.markdownToHTML("markdownToHTML", {
+                    htmlDecode      : "style,script,iframe",
+                    emoji           : true,  // 解析表情
+                    taskList        : true,  // 解析列表
+                    tex             : true,  // 默认不解析
+                    flowChart       : true,  // 默认不解析
+                    sequenceDiagram : true  // 默认不解析
+                });
+            }
+        }
+
+        var layer = layui.layer;
+        var $= layui.jquery;
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var token =$("meta[name='_csrf']").attr("content");
+
+        var showEditor = function(){
+            // 弹出框
+            var win = layer.open({
+                type: 1
+                ,title:'MD编辑器'
+                ,content: $('#myeditor')
+                ,btn: '返回'
+                ,btnAlign: 'c' //按钮居中
+                ,shade: 0 //不显示遮罩
+                ,yes: function(){
+                    console.log(testEditor.getHTML());
+                    $('#content_md').val(testEditor.getMarkdown());
+                    $('#markdownToHTML').empty();
+                    $('#markdownToHTML').append('<textarea class="layui-textarea"  rows="28" id="content_html"  name="content" autocomplete="off" disabled></textarea>');
+                    $('#content_html').val(testEditor.getMarkdown());
+                    // 解析
+                    editormd.markdownToHTML("markdownToHTML", {
+                        htmlDecode      : "style,script,iframe",
+                        emoji           : true,  // 解析表情
+                        taskList        : true,  // 解析列表
+                        tex             : true,  // 默认不解析
+                        flowChart       : true,  // 默认不解析
+                        sequenceDiagram : true  // 默认不解析
+                    });
+                    layer.closeAll();
+                },
+                success:function () {
+                    testEditor = editormd("test-editormd", {
+                        width: "98%",
+                        height: 740,
+                        path : '/editormd/lib/',
+                        theme : "dark",
+                        previewTheme : "default",
+                        editorTheme : "default",
+                        //markdown : $('#content_md'),             // 初始化编辑区的内容
+                        codeFold : true,
+                        //syncScrolling : false,
+                        saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
+                        searchReplace : true,
+                        htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启
+                        //toolbar  : false,             //关闭工具栏
+                        //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
+                        emoji : true,
+                        taskList : true,
+                        tocm            : true,         // Using [TOCM]
+                        tex : true,                   // 开启科学公式TeX语言支持，默认关闭
+                        flowChart : true,             // 开启流程图支持，默认关闭
+                        sequenceDiagram : true,       // 开启时序/序列图支持，默认关闭,
+                        imageUpload : true,
+                        imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                        imageUploadURL : "", // 文件上传路径，返回值为图片加载的路径
+                        onload:function () {
+                            testEditor.setMarkdown($('#content_md').val());
+                        }
+                    });
+                }
+            });
+            layer.full(win);
+            return false;
+        }
+
+        //window.onload=showEditor();
+        $('#showEditor').on('click',showEditor );
+
+        $('#preview').on('click',function(){
+            if($('#preview').val()=="0"){
+                $('#preview').val("1");
+                $('#preview').text("切换HTML");
+                $('#div_content_md').removeAttr('hidden');
+                $('#div_content_html').attr('hidden','hidden');
+            }else if($('#preview').val()=="1"){
+                $('#preview').val("0");
+                $('#preview').text("切换Markdown");
+                $('#div_content_html').removeAttr('hidden');
+                $('#div_content_md').attr('hidden','hidden');
+            }
+            return false;
+        });
+
+        function send(articleMode){
+            var load = layer.load();
+
+            var article = {
+                articleTitle:$('#title').val(),
+                articleKeyword:$('#keyword').val(),
+                articleSummary:$('#summary').val(),
+                articleContent:testEditor.getMarkdown(),
+                articleMode:articleMode
+            }
+
+            $.ajax({
+                type:'post',
+                url:'/article/send',
+                dataType:'text',
+                contentType: 'application/json',
+                data:JSON.stringify(article),
+                timeOut:5000,
+                beforeSend : function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success:function(data){
+                    layer.close(load);
+                    if(data == "success"){
+                        location.href = "/article/getall";
+                    }else{
+                        layer.msg("发表失败");
+                    }
+                }
+            })
+
+            return false;
+        }
+
+        $('#send').on('click',function(){send(2);});
+
+        $('#save').on('click',function(){send(1);});
+
+        function update(articleMode) {
+            var load = layer.load();
+
+            var article = {
+                articleTitle:$('#title').val(),
+                articleKeyword:$('#keyword').val(),
+                articleSummary:$('#summary').val(),
+                //articleContent:testEditor.getMarkdown(),
+                articleContent:$('#content_md').val(),
+                articleUUID:[[${article.articleUUID}]],
+                articleMode:articleMode
+            }
+            $.ajax({
+                type:'post',
+                url:'/article/update',
+                dataType:'text',
+                contentType: 'application/json',
+                data:JSON.stringify(article),
+                timeOut:5000,
+                beforeSend : function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success:function(data){
+                    layer.close(load);
+                    if(data == "success"){
+                        location.href = '/article/byUUID?uuid='+[[${article.articleUUID}]];
+                    }else{
+                        layer.msg("更新失败");
+                    }
+                },
+                error:function () {
+                    layer.close(load);
+                    layer.msg("服务器异常");
+                }
+            })
+            return false;
+        }
+
+        $('#updateAndSend').on('click',function () { update(2) })
+        $('#updateToDraft').on('click',function () { update(1) })
+    });
+</script>
+</body>
+</html>

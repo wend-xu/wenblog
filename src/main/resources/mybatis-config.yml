@@ -1,0 +1,10 @@
+mysql:
+  server:
+    saas:
+      url: "jdbc:mysql://localhost:3306/blog_1_0?characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
+      username: root
+      password: qqaazz321
+      driverClassName: com.mysql.jdbc.Driver
+      initialSize: 1
+      minIdle: 1
+      maxActive: 50

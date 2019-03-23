@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+    <title>修改密码</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+<div th:replace="part/head::head"></div>
+<div class="login-main">
+    <header class="layui-elip" style="width: 82%">修改密码</header>
+    <!-- 表单选项 -->
+    <form class="layui-form">
+        <div class="layui-input-inline">
+            <!-- 初始密码 -->
+            <div class="layui-inline" style="width: 85%">
+                <input type="password" id="originpwd" name="originpwd" required  lay-verify="required" placeholder="原始密码" autocomplete="off" class="layui-input">
+            </div>
+            <!-- 对号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="rop" style="color: green;font-weight: bolder;" hidden></i>
+            </div>
+            <!-- 错号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="eop" style="color: red; font-weight: bolder;" hidden>ဆ</i>
+            </div>
+        </div>
+        <!-- 新密码-->
+        <div class="layui-input-inline">
+            <div class="layui-inline" style="width: 85%">
+                <input type="password" id="newpwd" name="newpwd" required  lay-verify="required" placeholder="请输入新密码" autocomplete="off" class="layui-input">
+            </div>
+            <!-- 对号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="rnp" style="color: green;font-weight: bolder;" hidden></i>
+            </div>
+            <!-- 错号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="enp" style="color: red; font-weight: bolder;" hidden>ဆ</i>
+            </div>
+        </div>
+        <!-- 确认新密码-->
+        <div class="layui-input-inline">
+            <div class="layui-inline" style="width: 85%">
+                <input type="password" id="confirmpwd" name="confirmpwd" required  lay-verify="required" placeholder="请确认密码" autocomplete="off" class="layui-input">
+            </div>
+            <!-- 对号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="rcp" style="color: green;font-weight: bolder;" hidden></i>
+            </div>
+            <!-- 错号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="ecp" style="color: red; font-weight: bolder;" hidden>ဆ</i>
+            </div>
+        </div>
+        <div class="layui-input-inline login-btn" style="width: 85%">
+            <button type="submit" lay-submit lay-filter="sub" class="layui-btn">确认</button>
+        </div>
+    </form>
+</div>
+
+
+<script src="/layui/layui.js"></script>
+<script type="text/javascript">
+    layui.use(['form','layer','jquery','element'], function () {
+        var form = layui.form;
+        var $ = layui.$;
+        var layer = layui.layer;
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var token =$("meta[name='_csrf']").attr("content");
+
+        function pwdVerify(pwd) {
+            var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/;
+            if((pwd.match(reg))){
+               return true;
+            }else {
+                return false
+            }
+        }
+
+        $('#originpwd').blur(function () {
+            var pwd = $('#originpwd').val();
+            if(pwdVerify(pwd)){
+                $('#eop').attr('hidden','hidden');
+                $('#rop').removeAttr('hidden');
+            }else {
+                $('#rop').attr('hidden','hidden');
+                $('#eop').removeAttr('hidden');
+                layer.msg('请输入8~16位合法密码，密码需数字字母混合');
+            }
+        })
+
+        $('#newpwd').blur(function () {
+            var pwd = $('#newpwd').val();
+            if(pwdVerify(pwd)){
+                $('#enp').attr('hidden','hidden');
+                $('#rnp').removeAttr('hidden');
+            }else {
+                $('#rnp').attr('hidden','hidden');
+                $('#enp').removeAttr('hidden');
+                layer.msg('请输入8~16位合法密码，密码需数字字母混合');
+            }
+        })
+
+        $('#confirmpwd').blur(function () {
+            var newpwd =  $('#newpwd').val();
+            var confirmpwd = $('#confirmpwd').val();
+            if(newpwd != confirmpwd){
+                $('#rcp').attr('hidden','hidden');
+                $('#ecp').removeAttr('hidden');
+                layer.msg("两次输入密码不一致");
+            }else{
+                $('#ecp').attr('hidden','hidden');
+                $('#rcp').removeAttr('hidden');
+            }
+        })
+
+        form.on('submit(sub)',function (){
+            var newpwd =  $('#newpwd').val();
+            var confirmpwd = $('#confirmpwd').val();
+            if(newpwd != confirmpwd){
+                $('#rcp').attr('hidden','hidden');
+                $('#ecp').removeAttr('hidden');
+                layer.msg("两次输入密码不一致");
+                return false;
+            }else{
+                var data = {
+                    originPwd:$('#originpwd').val(),
+                    newPwd:$('#newpwd').val()
+                }
+                $.ajax({
+                    url:'/user/changePwd',
+                    type:'post',
+                    dataType:'text',
+                    contentType: 'application/json',
+                    data:JSON.stringify(data),
+                    timeout:2000,
+                    beforeSend:function (xhr) {
+                        xhr.setRequestHeader(header,token);
+                    },
+                    success:function(data){
+                        if(data == 'success'){
+                            layer.msg("密码修改成功");
+                            location.href = "/user/loginpage"
+                        }else{
+                            layer.msg("密码修改失败")
+                        }
+                    },
+                    error:function () {
+                        layer.msg("密码修改失败")
+                    }
+                })
+            }
+            return false;
+        })
+    });
+</script>
+</body>
+</html>

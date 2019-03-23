@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+  <title>文章</title>
+  <link rel="stylesheet" href="/layui/css/layui.css">
+  <link rel="stylesheet" href="/editormd/css/editormd.css" />
+  <!-- 页面解析markdown为HTML显示需要的css -->
+  <link rel="stylesheet" href="/editormd/css/editormd.preview.css" />
+</head>
+<body >
+<!-- 弹出框 -->
+<div th:replace="part/head::head"></div>
+<div class="layui-container" style="background-color:#F5F5F5;box-shadow:8px 8px 5px #c2c2c2;padding-top:40px">
+  <form class="layui-form " style="padding:20px 0 30px 0">
+    <div  style="text-align: center;padding-top: 30px">
+      <h1><span th:text="${article.articleTitle}"></span></h1>
+    </div>
+    <div class="layui-form-item" style="margin-top: 45px">
+      <label class="layui-form-label">关键字</label>
+      <div class="layui-input-block">
+        <input type="text" id="keyword" disabled  name="keyword" autocomplete="off" class="layui-input" th:value="${article.articleKeyword}">
+      </div>
+    </div>
+    <div class="layui-form-item" style="margin-bottom: 20px">
+      <label class="layui-form-label" >文章摘要</label>
+      <div class="layui-input-block">
+        <textarea class="layui-textarea" disabled rows="4" id="summary"  name="summary" autocomplete="off" th:text="${article.articleSummary}"></textarea>
+      </div>
+    </div>
+    <div  th:if="${editable} eq 'editable'" style="text-align:center;padding-left:20%;padding-right:20%;padding-bottom: 40px">
+      <button class="layui-btn layui-btn-warm layui-btn-fluid" id="edit">编辑</button>
+    </div>
+    <div class="layui-row" style="margin-bottom: 10px;padding-left: 10%;padding-right: 2%">
+      <div class="layui-col-xs5" th:if="not ${#strings.isEmpty(article.userName)}">
+        <div class="grid-demo" th:if="${#strings.length(article.userName) gt 12}">
+          <span th:text="${#strings.substring(article.userName,0,10)}+'...'" style="color: #FF5722">未知用户</span>
+          发布于：<span th:text="${#dates.format(article.articleTime,'yyyy-MM-dd')}" style="color: #FF5722"/>
+        </div>
+        <div class="grid-demo" th:if="${#strings.length(article.userName) le 12}">
+          <span th:text="${article.userName}" style="color: #FF5722">未知用户</span>
+          发布于：<span th:text="${#dates.format(article.articleTime,'yyyy-MM-dd')}" style="color: #FF5722"/>
+        </div>
+      </div>
+      <div class="layui-col-xs5">
+        <div class="grid-demo">编辑于：<span th:text="${#dates.format(article.lastUpdateTime,'yyyy-MM-dd')}" style="color: #FF5722"/></div>
+      </div>
+      <div class="layui-col-xs1" style="text-align:right">
+         <span th:if="${article.hasLike}">
+           <i class="layui-icon layui-icon-praise" style="font-size: 12px;text-align:right;color: #FF5722" th:text="${article.articleLike}" th:id="${article.articleUUID}" onclick="like(this)"></i>
+         </span>
+        <span th:if="${not article.hasLike}">
+          <i class="layui-icon layui-icon-praise" style="font-size: 12px;text-align:right" th:text="${article.articleLike}" th:id="${article.articleUUID}" onclick="like(this)"></i>
+        </span>
+      </div>
+      <div class="layui-col-xs1" style="text-align:right">
+        <span th:if="${article.hasClick}">
+          <i class="layui-icon layui-icon-read" style="font-size: 12px;color: #FF5722" th:text="${article.articleClick}"></i>
+        </span>
+        <span th:if="${not article.hasClick}">
+          <i class="layui-icon layui-icon-read" style="font-size: 12px;" th:text="${article.articleClick}"></i>
+        </span>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <div class="layui-input-block" id="div_content_html">
+        <div id="markdownToHTML"  style="width: 95%;" >
+          <textarea class="layui-textarea" id="content_html"  name="content" autocomplete="off" disabled  th:text="${article.articleContent}"> </textarea>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div>
+    <div id="myeditor" style="display: none">
+      <!-- 富文本编辑器 -->
+      <div id="test-editormd"></div>
+    </div>
+  </div>
+
+
+
+</div>
+
+<script src="/js/util/jquery.min.js"></script>
+<script src="/layui/layui.js"></script>
+<script src="/editormd/src/editormd.js"></script>
+
+<!-- 页面markdown解析成HTML需要的js -->
+<script src="/editormd/lib/marked.min.js"></script>
+<script src="/editormd/lib/prettify.min.js"></script>
+<script src="/editormd/lib/raphael.min.js"></script>
+<script src="/editormd/lib/underscore.min.js"></script>
+<script src="/editormd/lib/sequence-diagram.min.js"></script>
+<script src="/editormd/lib/flowchart.min.js"></script>
+<script src="/editormd/lib/jquery.flowchart.min.js"></script
+<script type="text/javascript" src="/js/util/jquery.min.js"></script>
+<script th:inline="javascript">
+  var header = $("meta[name='_csrf_header']").attr("content");
+  var token =$("meta[name='_csrf']").attr("content");
+  layui.use(['layer', 'jquery','form','element','util'], function() {
+    var util=layui.util;
+    window.onload = contentInit();
+    function contentInit(){
+      editormd.markdownToHTML("markdownToHTML", {
+        htmlDecode      : "style,script,iframe",
+        emoji           : true,  // 解析表情
+        taskList        : true,  // 解析列表
+        tex             : true,  // 默认不解析
+        flowChart       : true,  // 默认不解析
+        sequenceDiagram : true  // 默认不解析
+      });
+
+      util.fixbar({
+        showHeight:100
+      });
+    }
+
+    $('#edit').click(function () {
+      var articleUUID = [[${article.articleUUID}]];
+      $.ajax({
+        url:"/check/alive",
+        type:"post",
+        beforeSend : function(xhr) {
+          xhr.setRequestHeader(header, token);
+        },
+        success:function(data){
+          if(data == "alive"){
+            location.href = "/article/edit?uuid="+articleUUID;
+          }else{
+            layer.msg("进入编辑模式失败");
+          }
+        },
+        error:function () {
+          layer.msg("伺服器疑似失联，请骚后再试");
+        }
+      })
+      return false;
+    })
+
+  })
+  function like(component){
+    console.log($(component).attr("id"));
+    var data={
+      uuid:$(component).attr("id")
+    }
+    $.ajax({
+      url:'/article/like',
+      type:'post',
+      contentType: "application/json",
+      data:JSON.stringify(data),
+      datetype:'text',
+      beforeSend : function(xhr) {
+        xhr.setRequestHeader(header, token);
+      },
+      success:function (data) {
+        if(data < $(component).text()){
+          $(component).css('color','#393D49')
+          layer.msg("取消点赞成功")
+        }else if(data == "未登录"){
+          layer.msg(data)
+        }else {
+          $(component).css('color','#FF5722')
+          layer.msg("点赞成功")
+        }
+        $(component).text(data)
+      },
+      error:function () {
+        console.log("request error");
+      }
+    })
+  }
+</script>
+
+</body>
+</html>

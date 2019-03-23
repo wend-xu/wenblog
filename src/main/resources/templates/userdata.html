@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+    <title>完善用户资料</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+</head>
+<body>
+
+<div th:replace="part/head::head"></div>
+<div class="layui-container">
+    <!-- 内容主体区域 -->
+    <div style="padding-right:30%;padding-top: 80px" >
+        <div class="layui-form">
+            <<!--div class="layui-row">
+                <div class="layui-form-item layui-col-xs8" style="width:55%">
+                    <div>
+                        <label class="layui-form-label">用户账号</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="loginname" name="loginname" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs4" style="margin-left: 10px">
+                    <i class="layui-icon layui-icon-face-surprised" id="ri" style="color:#FF5722;font-weight: bolder;">
+                        用户ID设置后不可改变
+                    </i>
+                </div>
+            </div>-->
+            <div class="layui-row layui-col-space30">
+                <div class="layui-col-xs7" >
+                    <div class="layui-form-item" >
+                        <label class="layui-form-label">用户名</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="username"  name="username" required  lay-verify="required" autocomplete="off" class="layui-input" th:value="${session.user.userName}">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">性别</label>
+                        <div class="layui-input-block">
+                            <input type="radio" value="male" name="sex" title="男" th:checked="${#strings.isEmpty(userData.userSex) or userData.userSex eq 'male'}">
+                            <input type="radio" value="female" name="sex" title="女" th:checked="${userData.userSex eq 'female'}">
+                            <input type="radio" value="other" name="sex" title="其它"th:checked="${userData.userSex eq 'other'}">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">出生日期</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="birthday" class="layui-input" th:value="${#dates.format(userData.userBirthday,'yyyy年MM月dd日')}">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" style="margin-top: 20px">
+                        <label class="layui-form-label">毕业院校</label>
+                        <div class="layui-input-block">
+                            <input name="school" id="school" class="layui-input"  th:value="${userData.userSchool}">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">所在城市</label>
+                        <div class="layui-input-block" >
+                            <select name="province" id="province" lay-filter="province">
+                                <option value="unselect">请选择省份</option>
+                                <option th:each="provincial:${provincials}"
+                                        th:selected="${selectedProvincial eq provincial.provincial}"
+                                        th:id="${provincial.pid}" th:text="${provincial.provincial}">
+                                </option>
+                            </select>
+                            <select name="city" id="city">
+                                <option value="unselect">请选择城市</option>
+                                <option th:each="city:${cities}" th:selected="${selectedCity eq city.city}"
+                                        th:id="${city.cid}" th:text="${city.city}">
+                                </option>
+                            </select>
+                            <textarea  name="address" id="address" autocomplete="off" class="layui-textarea" placeholder="详细地址" th:text="${address}"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">血型</label>
+                        <div class="layui-input-block">
+                            <select name="bloodtype" id="bloodtype" lay-verify="required">
+                                <option value="A" th:selected="${userData.userBloodType eq 'A'}">A</option>
+                                <option value="B" th:selected="${userData.userBloodType eq 'B'}">B</option>
+                                <option value="O" th:selected="${userData.userBloodType eq 'O'}">O</option>
+                                <option value="AB" th:selected="${userData.userBloodType eq 'AB'}">AB</option>
+                                <option value="others" th:selected="${userData.userBloodType eq 'others'}">others</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs4">
+                    <div class="layui-upload">
+                        <div class="layui-upload-list">
+                            <img th:src="${session.user.userImageUrl}" class="layui-upload-img" id="preview" style="margin-left:15%;width:70%;height:70%">
+                            <p id="reTry"></p>
+                        </div>
+                        <button type="button" class="layui-btn" id="uploadIcon">上传头像</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户签名</label>
+                <div class="layui-input-block">
+                    <input type="text" id="signature" name="signature"  autocomplete="off" class="layui-input" th:value="${userData.userSignature}">
+                </div>
+            </div>
+
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">自我介绍</label>
+                <div class="layui-input-block">
+                    <textarea class="layui-textarea" id="desc" maxlength="255" name="desc" placeholder="请输入内容" th:text="${userData.userDescription}"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block layui-row">
+                    <div class="layui-form-item layui-col-xs10">
+                        <button id="submit" class="layui-btn" type="submit" lay-submit lay-filter="sub">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                    <div class="layui-col-xs2">
+                        <button id='skip' class="layui-btn" style="margin-left:10px" >跳过设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/util/jquery.min.js"></script>
+<script src="/layui/layui.js"></script>
+<script>
+    layui.use(['element','form','laydate','jquery','layer','upload'], function(){
+        var upload = layui.upload;
+        var element = layui.element;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var $ = layui.jquery;
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var token =$("meta[name='_csrf']").attr("content");
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#birthday' //指定元素
+            ,type: 'date'
+            ,format: 'yyyy年MM月dd日'
+        });
+
+        form.on('submit(sub)',function(){
+            var user = {
+                loginname : $('#loginname').val(),
+                username : $('#username').val(),
+                sex : $('input:radio[name="sex"]:checked').val(),
+                birthday : $('#birthday').val(),
+                school : $('#school').val(),
+                address : $('#province').val()+'-'+$('#city').val()+'-'+$('#address').val(),
+                bloodtype : $('#bloodtype').val(),
+                signature : $('#signature').val(),
+                desc : $('#desc').val(),
+            }
+            var load = layer.load();
+            $.ajax({
+                type:'post',
+                url:'/user/data',
+                dataType:'text',
+                contentType: 'application/json',
+                data: JSON.stringify(user),
+                timeout:2000,
+                beforeSend : function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success:function (data) {
+                    layer.close(load);
+                    if (data == 'success'){
+                        layer.msg("资料保存成功");
+                        location.href='/article/getall';
+                    } else{
+                        layer.msg("设置用户资料失败");
+                        location.href='/user/editor';
+                    }
+                }
+            })
+        })
+
+        $('#skip').click(function(){
+            window.location.href="/user/index";
+        })
+
+        $('#address').blur(function () {
+            var value = $('#address').val();
+            console.log(value);
+            if(value.match("-")){
+                layer.msg("地址不允许包含‘-’")
+                value = value.replace(/-/g,"");
+                $('#address').val(value);
+            }
+        })
+
+        form.on('select(province)',function () {
+            var pid = $('#province option:selected').attr('id');
+            $.ajax({
+                url:'/rest/config/city?pid='+pid,
+                type:'get',
+                dateType:'JSON',
+                success:function (data) {
+                    console.log(data);
+                    var citySelect = $('#city').empty();
+                    citySelect.append("<option id='unselect'> 请选择 </option>")
+                    for(var i = 0;i<data.length;i++){
+                        console.log("<option id="+data[i].cid+">"+data[i].city+"</option>")
+                        citySelect.append("<option id="+data[i].cid+">"+data[i].city+"</option>")
+                    }
+                    form.render('select');
+                },
+                error:function () {
+
+                }
+            })
+        })
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#uploadIcon'
+            ,url: '/user/upload/headPortrait'
+            ,headers: {"X-CSRF-TOKEN":token}
+            ,accept:'file'
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#preview').attr('src', result);
+                });
+            }
+            ,done: function(res){
+                if(res.code == 0){
+                    $('#headportrait').attr('src', res.src);
+                    $('#preview').attr('src', res.src);
+                    layer.msg('图片上传成功');
+                }else{
+                    layer.msg('图片上传失败');
+                }
+                return false;
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#reTry');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

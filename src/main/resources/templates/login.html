@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+    <title>登录</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+
+<div class="login-main">
+    <header class="layui-elip" style="width: 82%">登录</header>
+
+    <!-- 表单选项 -->
+    <form class="layui-form" >
+        <div class="layui-input-inline">
+            <!-- 用户名 -->
+            <div class="layui-inline" style="width: 85%">
+                <input type="text" id="loginname" name="loginname" required  lay-verify="required" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+            </div>
+            <!-- 对号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="ri" style="color: green;font-weight: bolder;" hidden></i>
+            </div>
+            <!-- 错号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="wr" style="color: red; font-weight: bolder;" hidden>ဆ</i>
+            </div>
+        </div>
+        <!-- 密码 -->
+        <div class="layui-input-inline">
+            <div class="layui-inline" style="width: 85%">
+                <input type="password" id="pwd" name="pwd" required  lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+            </div>
+            <!-- 对号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="pri" style="color: green;font-weight: bolder;" hidden></i>
+            </div>
+            <!-- 错号 -->
+            <div class="layui-inline">
+                <i class="layui-icon" id="pwr" style="color: red; font-weight: bolder;" hidden>ဆ</i>
+            </div>
+        </div>
+        <div class="layui-input-inline login-btn" style="width: 85%">
+            <button type="submit" lay-submit lay-filter="sub" class="layui-btn">登录</button>
+        </div>
+        <hr style="width: 85%" />
+        <p style="width: 85%"><a href="/user/register" class="fl">没有账号？立即注册</a><a href="javascript:;" class="fr">忘记密码？</a></p>
+    </form>
+</div>
+
+
+<script src="/layui/layui.js"></script>
+<script type="text/javascript">
+    layui.use(['form','layer','jquery'], function () {
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var token =$("meta[name='_csrf']").attr("content");
+        form.on('submit(sub)',function () {
+            // console.log(data.field);
+            layer.msg('执行登录');
+            $.ajax({
+                url:'/user/login',
+                type:'post',
+                dataType:'text',
+                data:{
+                    loginname:$('#loginname').val(),
+                    pwd:$('#pwd').val()
+                },
+                beforeSend : function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success:function (data) {
+                    if (data == 'success'){
+                        layer.msg('登录成功');
+                        location.href = '/article/getall';
+                    }else{
+                        layer.msg('登陆失败:'+data)
+                    }
+                }
+            })
+            return false;
+        })
+
+    });
+</script>
+</body>
+</html>
