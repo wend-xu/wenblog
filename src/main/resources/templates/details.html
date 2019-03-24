@@ -6,7 +6,8 @@
   <meta name="_csrf" th:content="${_csrf.token}"/>
   <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
   <title>文章</title>
-  <link rel="stylesheet" href="/layui/css/layui.css">
+  <link rel="stylesheet" href="/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
   <link rel="stylesheet" href="/editormd/css/editormd.css" />
   <!-- 页面解析markdown为HTML显示需要的css -->
   <link rel="stylesheet" href="/editormd/css/editormd.preview.css" />
@@ -79,10 +80,75 @@
       <div id="test-editormd"></div>
     </div>
   </div>
-
-
-
 </div>
+<div id="comment" hidden="hidden"></div>
+<script id="commentTpl" type="text/html">
+    {{# layui.each(d,function(index, item){ }}
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <div class="layui-row">
+                <div class="layui-col-xs6"><h5>{{item.commentTime}} 来自：{{item.commentUserName}}</h5></div>
+                <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            {{item.commentContent}}
+            <div style="padding-left: 6%">
+                {{# if(item.childComments.length >0){ }}
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            <div class="layui-row">
+                                <div class="layui-col-xs6"><h5>{{item.childComments[0].commentUserName}} 回复 {{item.childComments[0].beCommentUserName}} {{item.childComments[0].commentTime}}</h5></div>
+                                <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
+                            </div>
+                        </div>
+                        <div class="layui-card-body">
+                            {{item.commentContent}}
+                        </div>
+                    </div>
+                {{# }; }}
+                {{# if(item.childComments.length >1){ }}
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <div class="layui-row">
+                            <div class="layui-col-xs6"><h5>{{item.childComments[1].commentUserName}} 回复 {{item.childComments[1].beCommentUserName}} {{item.childComments[1].commentTime}}</h5></div>
+                            <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
+                        </div>
+                    </div>
+                    <div class="layui-card-body">
+                        {{item.commentContent}}
+                    </div>
+                </div>
+                {{# }; }}
+                {{# if(item.childComments.length >2){ }}
+                <div class="layui-collapse" lay-filter="comment">
+                    <div class="layui-colla-item" id="dd">
+                        <div class="layui-colla-title">
+                            更多回复
+                        </div>
+                        <div class="layui-colla-content">
+                            {{# layui.each(item.childComments,function(index, item){ }}
+                            <div class="layui-card">
+                                <div class="layui-card-header">
+                                    <div class="layui-row">
+                                        <div class="layui-col-xs6"><h5>{{item.commentUserName}} 回复 {{item.beCommentUserName}} {{item.commentTime}}</h5></div>
+                                        <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
+                                    </div>
+                                </div>
+                                <div class="layui-card-body">
+                                    {{item.commentContent}}
+                                </div>
+                            </div>
+                            {{# }) }}
+                        </div>
+                    </div>
+                </div>
+                {{# }; }}
+            </div>
+        </div>
+    </div>
+    {{# })}}
+</script>
 
 <script src="/js/util/jquery.min.js"></script>
 <script src="/layui/layui.js"></script>
@@ -100,23 +166,53 @@
 <script th:inline="javascript">
   var header = $("meta[name='_csrf_header']").attr("content");
   var token =$("meta[name='_csrf']").attr("content");
-  layui.use(['layer', 'jquery','form','element','util'], function() {
-    var util=layui.util;
-    window.onload = contentInit();
-    function contentInit(){
-      editormd.markdownToHTML("markdownToHTML", {
-        htmlDecode      : "style,script,iframe",
-        emoji           : true,  // 解析表情
-        taskList        : true,  // 解析列表
-        tex             : true,  // 默认不解析
-        flowChart       : true,  // 默认不解析
-        sequenceDiagram : true  // 默认不解析
-      });
-
-      util.fixbar({
-        showHeight:100
-      });
+  layui.config({
+      base: '/js/util/'
+  }).use(['layer', 'jquery','form','element','util','menu','laytpl'], function() {
+      var menu = layui.menu;
+      var element = layui.element;
+      var laytpl = layui.laytpl;
+      menu.init();
+      menu.off();
+      menu.submit()
+      var util=layui.util;
+      window.onload = contentInit();
+      function contentInit(){
+          initComment();
+          editormd.markdownToHTML("markdownToHTML", {
+            htmlDecode      : "style,script,iframe",
+            emoji           : true,  // 解析表情
+            taskList        : true,  // 解析列表
+            tex             : true,  // 默认不解析
+            flowChart       : true,  // 默认不解析
+            sequenceDiagram : true  // 默认不解析
+          });
     }
+      var layWin;
+      util.fixbar({
+          bar1:'&#xe63a',
+          click:function(type){
+              if(type=='bar1'){
+                  layWin = layer.open({
+                      type:1
+                      ,title:'评论区'
+                      ,area:['950px','750px']
+                      ,content:$('#comment').html()
+                      ,btn: ['发表评论','关闭评论区']
+                      ,btnAlign: 'c'
+                      ,yes:function () {
+
+                      }
+                      ,btn2:function () {
+                          layer.closeAll();
+                      }
+                      , success: function(layero, index){
+                          reloadElement('collapse','comment');
+                      }
+                  })
+              }
+          }
+      });
 
     $('#edit').click(function () {
       var articleUUID = [[${article.articleUUID}]];
@@ -139,6 +235,59 @@
       })
       return false;
     })
+
+    function reloadElement(type,filter) {
+        element.render(type,filter)
+    }
+
+    function initComment() {
+        var data =
+            [
+                {
+                    commentTime:'2018-11-12',
+                    commentUserName:'cz',
+                    commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
+                    childComments:[
+                        {
+                            commentTime:'2018-11-12',
+                            commentUserName:'cz',
+                            beCommentUserName:'zx',
+                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
+                        },
+                        {
+                            commentTime:'2018-11-12',
+                            commentUserName:'cz',
+                            beCommentUserName:'zx',
+                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
+                        },
+                        {
+                            commentTime:'2018-11-12',
+                            commentUserName:'cz',
+                            beCommentUserName:'zx',
+                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
+                        },
+                        {
+                            commentTime:'2018-11-12',
+                            commentUserName:'cz',
+                            beCommentUserName:'zx',
+                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
+                        },
+                        {
+                            commentTime:'2018-11-12',
+                            commentUserName:'cz',
+                            beCommentUserName:'zx',
+                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
+                        }
+                    ]
+                }
+            ]
+        var commentTemplate =document.getElementById('commentTpl').innerHTML;
+        var comment = document.getElementById('comment');
+        laytpl(commentTemplate).render(data, function(html){
+            console.log(html);
+            comment.innerHTML = html;
+        });
+    }
 
   })
   function like(component){
