@@ -82,73 +82,7 @@
   </div>
 </div>
 <div id="comment" hidden="hidden"></div>
-<script id="commentTpl" type="text/html">
-    {{# layui.each(d,function(index, item){ }}
-    <div class="layui-card">
-        <div class="layui-card-header">
-            <div class="layui-row">
-                <div class="layui-col-xs6"><h5>{{item.commentTime}} 来自：{{item.commentUserName}}</h5></div>
-                <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
-            </div>
-        </div>
-        <div class="layui-card-body">
-            {{item.commentContent}}
-            <div style="padding-left: 6%">
-                {{# if(item.childComments.length >0){ }}
-                    <div class="layui-card">
-                        <div class="layui-card-header">
-                            <div class="layui-row">
-                                <div class="layui-col-xs6"><h5>{{item.childComments[0].commentUserName}} 回复 {{item.childComments[0].beCommentUserName}} {{item.childComments[0].commentTime}}</h5></div>
-                                <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
-                            </div>
-                        </div>
-                        <div class="layui-card-body">
-                            {{item.commentContent}}
-                        </div>
-                    </div>
-                {{# }; }}
-                {{# if(item.childComments.length >1){ }}
-                <div class="layui-card">
-                    <div class="layui-card-header">
-                        <div class="layui-row">
-                            <div class="layui-col-xs6"><h5>{{item.childComments[1].commentUserName}} 回复 {{item.childComments[1].beCommentUserName}} {{item.childComments[1].commentTime}}</h5></div>
-                            <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
-                        </div>
-                    </div>
-                    <div class="layui-card-body">
-                        {{item.commentContent}}
-                    </div>
-                </div>
-                {{# }; }}
-                {{# if(item.childComments.length >2){ }}
-                <div class="layui-collapse" lay-filter="comment">
-                    <div class="layui-colla-item" id="dd">
-                        <div class="layui-colla-title">
-                            更多回复
-                        </div>
-                        <div class="layui-colla-content">
-                            {{# layui.each(item.childComments,function(index, item){ }}
-                            <div class="layui-card">
-                                <div class="layui-card-header">
-                                    <div class="layui-row">
-                                        <div class="layui-col-xs6"><h5>{{item.commentUserName}} 回复 {{item.beCommentUserName}} {{item.commentTime}}</h5></div>
-                                        <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
-                                    </div>
-                                </div>
-                                <div class="layui-card-body">
-                                    {{item.commentContent}}
-                                </div>
-                            </div>
-                            {{# }) }}
-                        </div>
-                    </div>
-                </div>
-                {{# }; }}
-            </div>
-        </div>
-    </div>
-    {{# })}}
-</script>
+<div th:replace="part/comment::comment"></div>
 
 <script src="/js/util/jquery.min.js"></script>
 <script src="/layui/layui.js"></script>
@@ -161,7 +95,7 @@
 <script src="/editormd/lib/underscore.min.js"></script>
 <script src="/editormd/lib/sequence-diagram.min.js"></script>
 <script src="/editormd/lib/flowchart.min.js"></script>
-<script src="/editormd/lib/jquery.flowchart.min.js"></script
+<script src="/editormd/lib/jquery.flowchart.min.js"></script>
 <script type="text/javascript" src="/js/util/jquery.min.js"></script>
 <script th:inline="javascript">
   var header = $("meta[name='_csrf_header']").attr("content");
@@ -201,6 +135,7 @@
                       ,btn: ['发表评论','关闭评论区']
                       ,btnAlign: 'c'
                       ,yes:function () {
+                          layWin.content = "";
 
                       }
                       ,btn2:function () {
@@ -279,6 +214,18 @@
                             commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
                         }
                     ]
+                },
+                {
+                    commentTime:'2018-11-12',
+                    commentUserName:'cz',
+                    commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
+                    childComments:[
+                        {
+                            commentTime:'2018-11-12',
+                            commentUserName:'cz',
+                            beCommentUserName:'zx',
+                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
+                        }]
                 }
             ]
         var commentTemplate =document.getElementById('commentTpl').innerHTML;
