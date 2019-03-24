@@ -23,7 +23,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/check/**").permitAll()
                 .antMatchers("/rest/**").permitAll()//restApi走token认证
                 .antMatchers("/user/**").hasRole("active")
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and().headers().frameOptions().disable()
+                .and().csrf().ignoringAntMatchers("/user/upload/photo/editorMD","/user/upload/photo/layEdit");
     }
 
 

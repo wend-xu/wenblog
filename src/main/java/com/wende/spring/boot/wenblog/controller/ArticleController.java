@@ -1,6 +1,7 @@
 package com.wende.spring.boot.wenblog.controller;
 
 import com.wende.spring.boot.wenblog.domain.article.Article;
+import com.wende.spring.boot.wenblog.domain.article.ArticleComment;
 import com.wende.spring.boot.wenblog.service.ArticleService;
 import com.wende.spring.boot.wenblog.service.AuthenticationService;
 import com.wende.spring.boot.wenblog.service.UserService;
@@ -149,10 +150,10 @@ public class ArticleController {
         return "index";
     }
 
-    @RequestMapping("/search")
-    public String searchArticle(@RequestParam(value = "keyword") String keyword,
-                                @RequestParam(value = "type") String type){
-
-        return "index";
+    @RequestMapping("/comment/public")
+    @ResponseBody
+    public String publicComment(@RequestBody ArticleComment articleComment){
+        articleService.publicComment(articleComment);
+        return "success";
     }
 }

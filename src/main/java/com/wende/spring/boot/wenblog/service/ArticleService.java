@@ -1,6 +1,7 @@
 package com.wende.spring.boot.wenblog.service;
 
 import com.wende.spring.boot.wenblog.domain.article.Article;
+import com.wende.spring.boot.wenblog.domain.article.ArticleComment;
 import com.wende.spring.boot.wenblog.domain.config.City;
 import com.wende.spring.boot.wenblog.domain.config.Provincial;
 
@@ -43,4 +44,12 @@ public interface ArticleService {
     void isNewArticle(Article article,long userId);
 
     void isNewArticles(List<Article> article,long userId);
+
+    List<ArticleComment> findArticleComment(long articleId);
+
+    List<ArticleComment> findArticleComment(String articleId);
+
+    List<ArticleComment> findChildComment(long articleId,long commentId);
+
+    void publicComment(ArticleComment comment);
 }

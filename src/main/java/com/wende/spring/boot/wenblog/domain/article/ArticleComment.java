@@ -14,12 +14,15 @@ public class ArticleComment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
     long commentArticleId;
+    long parentId;
     @Column(columnDefinition = "MEDIUMTEXT not null")
     String commentContent;
     long commentUserId;
     long beCommentUserId;
     Timestamp commentTime;
+    @Transient
     String commentUserName;
+    @Transient
     String beCommentUserName;
     @Transient
     List<ArticleComment> childComments;

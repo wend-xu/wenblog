@@ -10,6 +10,7 @@ import net.sf.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -185,7 +186,6 @@ public class UserController {
             String fileUrl = userService.uploadPhoto
                     (file,defaultUploadDir,"头像");
             if(fileUrl != null){
-                System.out.println(fileUrl);
                 User user = userService.getUserById(authenticationService.getAuthUserId());
                 user.setUserImageUrl(fileUrl);
                 userService.updateUser(user);
@@ -202,6 +202,42 @@ public class UserController {
         }
         return result.toString();
     }
+
+    @RequestMapping(value = "/upload/photo/editorMD" ,produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String uploadPhotoByEditorMd(@RequestParam(value = "editormd-image-file")MultipartFile photo){
+        String photoUrl = userService.uploadPhoto(photo,defaultUploadDir,null);
+        JSONObject result = new JSONObject();
+        if (photoUrl != null) {
+            result.put("success",1);
+            result.put("message","上传成功");
+            result.put("url",photoUrl);
+        }else {
+            result.put("success",0);
+            result.put("message","上传失败");
+        }
+        return result.toString();
+    }
+
+    @RequestMapping(value = "/upload/photo/layEdit" ,produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String uploadPhotoByLayEdit(@RequestParam(value = "file")MultipartFile photo){
+        String photoUrl = userService.uploadPhoto(photo,defaultUploadDir,null);
+        JSONObject result = new JSONObject();
+        if (photoUrl != null) {
+            result.put("code",0);
+            result.put("msg","上传成功");
+            JSONObject data =new JSONObject();
+            data.put("src",photoUrl);
+            result.put("data",data);
+        }else {
+            result.put("code",1);
+            result.put("msg","上传失败");
+        }
+        return result.toString();
+    }
+
+
 
     @GetMapping("/changePwd")
     public String toChangePasswordPage(){

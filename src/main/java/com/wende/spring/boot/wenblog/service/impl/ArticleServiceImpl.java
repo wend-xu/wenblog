@@ -1,12 +1,10 @@
 package com.wende.spring.boot.wenblog.service.impl;
 
-import com.wende.spring.boot.wenblog.dao.article.ArticleClickDao;
-import com.wende.spring.boot.wenblog.dao.article.ArticleDao;
-import com.wende.spring.boot.wenblog.dao.article.ArticleLikeDao;
-import com.wende.spring.boot.wenblog.dao.article.EsArticleDao;
+import com.wende.spring.boot.wenblog.dao.article.*;
 import com.wende.spring.boot.wenblog.dao.user.UserDao;
 import com.wende.spring.boot.wenblog.domain.article.Article;
 import com.wende.spring.boot.wenblog.domain.article.ArticleClick;
+import com.wende.spring.boot.wenblog.domain.article.ArticleComment;
 import com.wende.spring.boot.wenblog.domain.article.ArticleLike;
 import com.wende.spring.boot.wenblog.service.ArticleService;
 import com.wende.spring.boot.wenblog.util.ParseTool;
@@ -29,6 +27,8 @@ public class ArticleServiceImpl implements ArticleService {
     ArticleDao articleDao;
     @Autowired
     UserDao userDao;
+    @Autowired
+    ArticleCommentDao articleCommentDao;
     @Autowired
     ArticleClickDao articleClickDao;
     @Autowired
@@ -74,7 +74,7 @@ public class ArticleServiceImpl implements ArticleService {
     public List<Article> findArticles(long userId, int articleMode ,int page, int size, String sort){
         Sort resultSort;
         //如果传入的sort标记错误，设置为默认
-        if(!verfiySort(sort)){
+        if(!verifySort(sort)){
             sort = ArticleConstant.SORT_BY_PUBLIC_TIME_DESC;
         }
         //将sort标记转换为Sort用于分页
@@ -240,7 +240,34 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    private boolean verfiySort(String sort){
+    @Override
+    public List<ArticleComment> findArticleComment(long articleId) {
+        List<ArticleComment> comments = articleCommentDao.findArticleCommentsByCommentArticleIdAndParentId(articleId,0);
+        for(ArticleComment comment:comments){
+            List<ArticleComment> childComment = findChildComment(comment.getCommentArticleId(),comment.getId());
+            comment.setChildComments(childComment);
+        }
+        return comments;
+    }
+
+    @Override
+    public List<ArticleComment> findArticleComment(String articleId) {
+        long articleIdL = Long.valueOf(articleId);
+        return findArticleComment(articleIdL);
+    }
+
+    @Override
+    public List<ArticleComment> findChildComment(long articleId, long commentId) {
+        return articleCommentDao.findArticleCommentsByCommentArticleIdAndParentId(articleId,commentId);
+    }
+
+    @Override
+    @Transactional
+    public void publicComment(ArticleComment comment) {
+        articleCommentDao.save(comment);
+    }
+
+    private boolean verifySort(String sort){
         String[] sortBys = ArticleConstant.ARTICLE_SORT_ACCORDING;
         for(String sortBy:sortBys){
             if(sort.contains(sortBy)){

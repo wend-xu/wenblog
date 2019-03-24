@@ -1,6 +1,7 @@
 package com.wende.spring.boot.wenblog.controller.rest;
 
 import com.wende.spring.boot.wenblog.domain.article.Article;
+import com.wende.spring.boot.wenblog.domain.article.ArticleComment;
 import com.wende.spring.boot.wenblog.domain.config.City;
 import com.wende.spring.boot.wenblog.service.ArticleService;
 import com.wende.spring.boot.wenblog.service.AuthenticationService;
@@ -91,5 +92,10 @@ public class RestAPI {
     @RequestMapping("/config/city")
     public List<City> getCityByProvincial(@RequestParam int pid){
         return userService.findCityByProvincial(pid);
+    }
+
+    @RequestMapping("/article/comment")
+    public List<ArticleComment> getComment(@RequestParam(value = "articleId",defaultValue = "0")String articleId){
+        return articleService.findArticleComment(articleId);
     }
 }

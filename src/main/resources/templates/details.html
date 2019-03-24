@@ -82,6 +82,9 @@
   </div>
 </div>
 <div id="comment" hidden="hidden"></div>
+<div id="publicArea" hidden="hidden">
+
+</div>
 <div th:replace="part/comment::comment"></div>
 
 <script src="/js/util/jquery.min.js"></script>
@@ -102,13 +105,16 @@
   var token =$("meta[name='_csrf']").attr("content");
   layui.config({
       base: '/js/util/'
-  }).use(['layer', 'jquery','form','element','util','menu','laytpl'], function() {
-      var menu = layui.menu;
+  }).use(['layer', 'jquery','form','element','util','menu','laytpl','layedit'], function() {
       var element = layui.element;
       var laytpl = layui.laytpl;
-      menu.init();
-      menu.off();
-      menu.submit()
+      var layedit = layui.layedit;
+      layedit.set({
+        uploadImage: {
+          url: '/user/upload/photo/layEdit'
+          ,type:'post'
+        }
+      });
       var util=layui.util;
       window.onload = contentInit();
       function contentInit(){
@@ -122,6 +128,7 @@
             sequenceDiagram : true  // 默认不解析
           });
     }
+    //var layEdit = layedit.build('publicComment'); //建立编辑器
       var layWin;
       util.fixbar({
           bar1:'&#xe63a',
@@ -131,17 +138,18 @@
                       type:1
                       ,title:'评论区'
                       ,area:['950px','750px']
-                      ,content:$('#comment').html()
+                      ,content:'<textarea id="publicComment" style="display: none;"></textarea>'+$('#comment').html()
                       ,btn: ['发表评论','关闭评论区']
                       ,btnAlign: 'c'
                       ,yes:function () {
-                          layWin.content = "";
-
+                        /*$('#commentArea').attr('hidden','hidden')
+                        $('#publicCommentArea').removeAttr('hidden')*/
                       }
                       ,btn2:function () {
                           layer.closeAll();
                       }
                       , success: function(layero, index){
+                          layedit.build('publicComment');
                           reloadElement('collapse','comment');
                       }
                   })
