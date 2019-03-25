@@ -262,9 +262,38 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public ArticleComment findArticleCommentByCommentId(String id) {
+        long idL = Long.valueOf(id);
+        return findArticleCommentByCommentId(idL);
+    }
+
+    @Override
+    public ArticleComment findArticleCommentByCommentId(long id) {
+        return articleCommentDao.findArticleCommentById(id);
+    }
+
+    @Override
+    public List<ArticleComment> deleteComment(String id) {
+        long idl = Long.valueOf(id);
+        return deleteComment(idl);
+    }
+
+    @Override
     @Transactional
-    public void publicComment(ArticleComment comment) {
+    public List<ArticleComment> deleteComment(long id) {
+        ArticleComment comment = articleCommentDao.findArticleCommentById(id);
+        if(comment != null){
+            articleCommentDao.deleteById(comment.getId());
+            articleCommentDao.deleteByParentId(comment.getId());
+        }
+        return findArticleComment(comment.getCommentArticleId());
+    }
+
+    @Override
+    @Transactional
+    public List<ArticleComment> publicComment(ArticleComment comment) {
         articleCommentDao.save(comment);
+        return findArticleComment(comment.getCommentArticleId());
     }
 
     private boolean verifySort(String sort){

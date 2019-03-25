@@ -2,15 +2,18 @@ package com.wende.spring.boot.wenblog.controller;
 
 import com.wende.spring.boot.wenblog.domain.article.Article;
 import com.wende.spring.boot.wenblog.domain.article.ArticleComment;
+import com.wende.spring.boot.wenblog.domain.user.User;
 import com.wende.spring.boot.wenblog.service.ArticleService;
 import com.wende.spring.boot.wenblog.service.AuthenticationService;
 import com.wende.spring.boot.wenblog.service.UserService;
+import com.wende.spring.boot.wenblog.util.ParseTool;
 import com.wende.spring.boot.wenblog.util.constant.ArticleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -152,8 +155,44 @@ public class ArticleController {
 
     @RequestMapping("/comment/public")
     @ResponseBody
-    public String publicComment(@RequestBody ArticleComment articleComment){
-        articleService.publicComment(articleComment);
-        return "success";
+    public List<ArticleComment> publicComment(@RequestBody ArticleComment articleComment){
+        User authUser = userService.getUserById(authenticationService.getAuthUserId());
+        List<ArticleComment> comments = null;
+        if(authUser != null
+                && !articleComment.getCommentContent().equals("") && articleComment.getCommentArticleId() != 0){
+            articleComment.setCommentUserId(authUser.getUserId());
+            articleComment.setCommentUserName(authUser.getUserName());
+            articleComment.setCommentTime(ParseTool.dateToTimestamp(new Date()));
+            comments = articleService.publicComment(articleComment);
+        }
+        return comments;
+    }
+
+    @RequestMapping("/comment/public/child")
+    @ResponseBody
+    public List<ArticleComment> publicChildComment(@RequestBody ArticleComment articleComment){
+        User authUser = userService.getUserById(authenticationService.getAuthUserId());
+        List<ArticleComment> comments = null;
+        if(authUser != null && articleComment.getParentId() != 0
+                && !articleComment.getCommentContent().equals("") && articleComment.getCommentArticleId() != 0){
+            articleComment.setCommentUserId(authUser.getUserId());
+            articleComment.setCommentUserName(authUser.getUserName());
+            articleComment.setCommentTime(ParseTool.dateToTimestamp(new Date()));
+            //设置父属性
+            ArticleComment parentComment = articleService.findArticleCommentByCommentId(articleComment.getParentId());
+            if(parentComment.getParentId() != 0){
+                articleComment.setParentId(parentComment.getParentId());
+            }
+            articleComment.setBeCommentUserId(parentComment.getCommentUserId());
+            articleComment.setBeCommentUserName(parentComment.getCommentUserName());
+            comments = articleService.publicComment(articleComment);
+        }
+        return comments;
+    }
+
+    @RequestMapping("/comment/delete")
+    @ResponseBody
+    public List<ArticleComment> dropComment(@RequestParam(value = "commentId") String commentId){
+        return articleService.deleteComment(commentId);
     }
 }

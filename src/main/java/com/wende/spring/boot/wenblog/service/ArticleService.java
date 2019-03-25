@@ -51,5 +51,13 @@ public interface ArticleService {
 
     List<ArticleComment> findChildComment(long articleId,long commentId);
 
-    void publicComment(ArticleComment comment);
+    ArticleComment findArticleCommentByCommentId(String id);
+
+    ArticleComment findArticleCommentByCommentId(long id);
+
+    List<ArticleComment> deleteComment(String id);
+
+    List<ArticleComment> deleteComment(long id);
+
+    List<ArticleComment> publicComment(ArticleComment comment);
 }

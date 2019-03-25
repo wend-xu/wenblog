@@ -7,31 +7,42 @@
 <body>
 <div >
     <script id="commentTpl" type="text/html" th:fragment="comment">
-        <div id="commentArea">
+        <div id="commentArea" style="color: gray">
             {{# if(d.length == 0){ }}
-            <h1>暂无评论，抢占沙发？</h1>
+            <div style="text-align: center;padding-top: 10%">
+                <h1 style="color: gray">暂无评论，抢占沙发？</h1>
+                <hr class="layui-bg-gray" style="margin-left: 20%;margin-right: 20%">
+            </div>
             {{# } }}
             {{# layui.each(d,function(index, item){ }}
-            <div class="layui-card">
+            <div class="layui-card" style="padding-top: 10px">
                 <div class="layui-card-header">
                     <div class="layui-row">
-                        <div class="layui-col-xs6"><h5>{{item.commentTime}} 来自：{{item.commentUserName}}</h5></div>
-                        <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
+                        <div class="layui-col-xs10" style="font-size: 18px">{{item.commentTime}}来自：{{item.commentUserName}}</div>
+                        <div class="layui-col-xs2" style="text-align: right">
+                            <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" onclick="publicChildCommenet({{item.id}})" >回复</button>
+                            <button class="layui-btn layui-btn-radius layui-btn-danger layui-btn-sm" onclick="dropComment({{item.id}})">删除</button>
+                        </div>
                     </div>
                 </div>
                 <div class="layui-card-body">
                     {{item.commentContent}}
+                    <br>
+                    <hr>
                     <div style="padding-left: 6%">
                         {{# if(item.childComments.length >0){ }}
                         <div class="layui-card">
                             <div class="layui-card-header">
                                 <div class="layui-row">
-                                    <div class="layui-col-xs6"><h5>{{item.childComments[0].commentUserName}} 回复 {{item.childComments[0].beCommentUserName}} {{item.childComments[0].commentTime}}</h5></div>
-                                    <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
+                                    <div class="layui-col-xs8">{{item.childComments[0].commentUserName}}回复 {{item.childComments[0].beCommentUserName}} {{item.childComments[0].commentTime}}</div>
+                                    <div class="layui-col-xs4" style="text-align: right">
+                                        <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" onclick="publicChildCommenet({{item.childComments[0].id}})">回复</button>
+                                        <button class="layui-btn layui-btn-radius layui-btn-danger layui-btn-sm" onclick="dropComment({{item.childComments[0].id}})">删除</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="layui-card-body">
-                                {{item.commentContent}}
+                                {{item.childComments[0].commentContent}}
                             </div>
                         </div>
                         {{# }; }}
@@ -39,12 +50,15 @@
                         <div class="layui-card">
                             <div class="layui-card-header">
                                 <div class="layui-row">
-                                    <div class="layui-col-xs6"><h5>{{item.childComments[1].commentUserName}} 回复 {{item.childComments[1].beCommentUserName}} {{item.childComments[1].commentTime}}</h5></div>
-                                    <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
+                                    <div class="layui-col-xs8"><h5>{{item.childComments[1].commentUserName}} 回复 {{item.childComments[1].beCommentUserName}} {{item.childComments[1].commentTime}}</h5></div>
+                                    <div class="layui-col-xs4" style="text-align: right">
+                                        <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" onclick="publicChildCommenet({{item.childComments[1].id}})">回复</button>
+                                        <button class="layui-btn layui-btn-radius layui-btn-danger layui-btn-sm" onclick="dropComment({{item.childComments[1].id}})">删除</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="layui-card-body">
-                                {{item.commentContent}}
+                                {{item.childComments[1].commentContent}}
                             </div>
                         </div>
                         {{# }; }}
@@ -56,17 +70,22 @@
                                 </div>
                                 <div class="layui-colla-content">
                                     {{# layui.each(item.childComments,function(index, item){ }}
+                                    {{# if(index>1){ }}
                                     <div class="layui-card">
                                         <div class="layui-card-header">
                                             <div class="layui-row">
-                                                <div class="layui-col-xs6"><h5>{{item.commentUserName}} 回复 {{item.beCommentUserName}} {{item.commentTime}}</h5></div>
-                                                <div class="layui-col-xs6" style="text-align: right"><button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm">回复</button></div>
+                                                <div class="layui-col-xs8"><h5>{{item.commentUserName}} 回复 {{item.beCommentUserName}} {{item.commentTime}}</h5></div>
+                                                <div class="layui-col-xs4" style="text-align: right">
+                                                    <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" onclick="publicChildCommenet({{item.id}})">回复</button>
+                                                    <button class="layui-btn layui-btn-radius layui-btn-danger layui-btn-sm" onclick="dropComment({{item.id}})">删除</button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="layui-card-body">
                                             {{item.commentContent}}
                                         </div>
                                     </div>
+                                    {{# } }}
                                     {{# }) }}
                                 </div>
                             </div>
@@ -75,6 +94,7 @@
                     </div>
                 </div>
             </div>
+
             {{# })}}
         </div>
     </script>

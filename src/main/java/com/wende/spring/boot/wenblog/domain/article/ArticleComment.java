@@ -20,9 +20,8 @@ public class ArticleComment {
     long commentUserId;
     long beCommentUserId;
     Timestamp commentTime;
-    @Transient
     String commentUserName;
-    @Transient
+    @Column(nullable = true)
     String beCommentUserName;
     @Transient
     List<ArticleComment> childComments;

@@ -103,59 +103,43 @@
 <script th:inline="javascript">
   var header = $("meta[name='_csrf_header']").attr("content");
   var token =$("meta[name='_csrf']").attr("content");
+
   layui.config({
       base: '/js/util/'
-  }).use(['layer', 'jquery','form','element','util','menu','laytpl','layedit'], function() {
-      var element = layui.element;
-      var laytpl = layui.laytpl;
-      var layedit = layui.layedit;
-      layedit.set({
-        uploadImage: {
-          url: '/user/upload/photo/layEdit'
-          ,type:'post'
-        }
+  }).use(['layer', 'jquery','form','element','util','laytpl','layedit'], function() {
+    var element = layui.element;
+    var laytpl = layui.laytpl;
+    var layedit = layui.layedit;
+    layedit.set({
+      uploadImage: {
+        url: '/user/upload/photo/layEdit'
+        ,type:'post'
+      }
+    });
+    var util=layui.util;
+
+    window.onload =contentInit();
+    function contentInit(){
+      $.getJSON('/rest/article/comment?articleId='+[[${article.id}]],function (data) {initComment(data);})
+      editormd.markdownToHTML("markdownToHTML", {
+        htmlDecode      : "style,script,iframe",
+        emoji           : true,  // 解析表情
+        taskList        : true,  // 解析列表
+        tex             : true,  // 默认不解析
+        flowChart       : true,  // 默认不解析
+        sequenceDiagram : true  // 默认不解析
       });
-      var util=layui.util;
-      window.onload = contentInit();
-      function contentInit(){
-          initComment();
-          editormd.markdownToHTML("markdownToHTML", {
-            htmlDecode      : "style,script,iframe",
-            emoji           : true,  // 解析表情
-            taskList        : true,  // 解析列表
-            tex             : true,  // 默认不解析
-            flowChart       : true,  // 默认不解析
-            sequenceDiagram : true  // 默认不解析
-          });
     }
-    //var layEdit = layedit.build('publicComment'); //建立编辑器
-      var layWin;
-      util.fixbar({
-          bar1:'&#xe63a',
-          click:function(type){
-              if(type=='bar1'){
-                  layWin = layer.open({
-                      type:1
-                      ,title:'评论区'
-                      ,area:['950px','750px']
-                      ,content:'<textarea id="publicComment" style="display: none;"></textarea>'+$('#comment').html()
-                      ,btn: ['发表评论','关闭评论区']
-                      ,btnAlign: 'c'
-                      ,yes:function () {
-                        /*$('#commentArea').attr('hidden','hidden')
-                        $('#publicCommentArea').removeAttr('hidden')*/
-                      }
-                      ,btn2:function () {
-                          layer.closeAll();
-                      }
-                      , success: function(layero, index){
-                          layedit.build('publicComment');
-                          reloadElement('collapse','comment');
-                      }
-                  })
-              }
-          }
-      });
+    util.fixbar({
+      bar1:'&#xe63a',
+      click:function(type){
+        if(type=='bar1'){
+          openCommentArea();
+        }
+      }
+    });
+
+
 
     $('#edit').click(function () {
       var articleUUID = [[${article.articleUUID}]];
@@ -179,74 +163,134 @@
       return false;
     })
 
-    function reloadElement(type,filter) {
-        element.render(type,filter)
-    }
 
-    function initComment() {
-        var data =
-            [
-                {
-                    commentTime:'2018-11-12',
-                    commentUserName:'cz',
-                    commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
-                    childComments:[
-                        {
-                            commentTime:'2018-11-12',
-                            commentUserName:'cz',
-                            beCommentUserName:'zx',
-                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
-                        },
-                        {
-                            commentTime:'2018-11-12',
-                            commentUserName:'cz',
-                            beCommentUserName:'zx',
-                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
-                        },
-                        {
-                            commentTime:'2018-11-12',
-                            commentUserName:'cz',
-                            beCommentUserName:'zx',
-                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
-                        },
-                        {
-                            commentTime:'2018-11-12',
-                            commentUserName:'cz',
-                            beCommentUserName:'zx',
-                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
-                        },
-                        {
-                            commentTime:'2018-11-12',
-                            commentUserName:'cz',
-                            beCommentUserName:'zx',
-                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
-                        }
-                    ]
-                },
-                {
-                    commentTime:'2018-11-12',
-                    commentUserName:'cz',
-                    commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
-                    childComments:[
-                        {
-                            commentTime:'2018-11-12',
-                            commentUserName:'cz',
-                            beCommentUserName:'zx',
-                            commentContent:'卡片式面板面板通常用于非白色背景色的主体内<br>从而映衬出边框投影',
-                        }]
-                }
-            ]
-        var commentTemplate =document.getElementById('commentTpl').innerHTML;
-        var comment = document.getElementById('comment');
-        laytpl(commentTemplate).render(data, function(html){
-            console.log(html);
-            comment.innerHTML = html;
-        });
-    }
 
   })
+
+  function reloadElement(type,filter) {
+    layui.element.render(type,filter)
+  }
+
+  function openCommentArea() {
+    layer.open({
+      type:1
+      ,title:'评论区'
+      ,area:['950px','750px']
+      ,content:$('#comment').html()
+      ,btn: ['发表评论','关闭评论区']
+      ,btnAlign: 'c'
+      ,yes:function () {
+        layer.closeAll();
+        openPublicArea(0);
+      }
+      ,btn2:function () {
+        layer.closeAll();
+      }
+      , success: function(layero, index){
+        reloadElement('collapse','comment');
+      }
+    })
+  }
+
+  var commentEdit;
+  function openPublicArea(parentId) {
+    layer.open({
+      type:1
+      ,title:'发表评论'
+      ,area:['950px','430px']
+      ,content:'<textarea id="publicComment" style="display: none;"></textarea>'
+      ,btn: ['发表','返回']
+      ,btnAlign: 'c'
+      ,yes:function () {
+        publicComment(commentEdit,parentId);
+      }
+      ,btn2:function () {
+        layer.closeAll();
+        openCommentArea();
+      }
+      , success: function(layero, index){
+        commentEdit = layui.layedit.build('publicComment');
+      }
+    })
+  }
+
+  function publicComment(commentEdit,parentId){
+    var commentContent = layui.layedit.getContent(commentEdit);
+    var commentArticleId = [[${article.id}]];
+    var url = '/article/comment/public'
+    var comment = {
+      commentContent:commentContent,
+      commentArticleId:commentArticleId
+    }
+    if(parentId != 0){
+      comment = {
+        parentId:parentId,
+        commentContent:commentContent,
+        commentArticleId:commentArticleId
+      }
+      url = '/article/comment/public/child'
+    }
+
+    if(commentContent == ""){
+      layer.msg("未输入内容");
+      return;
+    }
+    $.ajax({
+      url:url,
+      type:'post',
+      data:JSON.stringify(comment),
+      dataType:'json',
+      contentType: "application/json",
+      beforeSend : function(xhr) {
+        xhr.setRequestHeader(header, token);
+      },
+      success:function (result) {
+        console.log(result);
+        if(result != null){
+          layer.msg("发表成功");
+          initComment(result);
+          layer.closeAll();
+          openCommentArea();
+        }
+      },
+      error:function () {
+        layer.msg("请求失败<br/>可能原因:尚未登陆或者服务器出错")
+      }
+    })
+  }
+
+  function initComment(commentData) {
+    for(var i =0;i<commentData.length;i++){
+      var date = new Date(commentData[i].commentTime).toLocaleString();
+      commentData[i].commentTime = date;
+      for(var j=0;j< commentData[i].childComments.length;j++){
+        var dateChild = new Date(commentData[i].childComments[j].commentTime).toLocaleString();
+        commentData[i].childComments[j].commentTime = dateChild;
+      }
+    }
+
+    var commentTemplate =document.getElementById('commentTpl').innerHTML;
+    var comment = document.getElementById('comment');
+    layui.laytpl(commentTemplate).render(commentData, function(html){
+      comment.innerHTML = html;
+    });
+  }
+
+  function publicChildCommenet(parentId) {
+    layer.closeAll();
+    openPublicArea(parentId);
+  }
+
+  function dropComment(commentId) {
+    layer.msg(commentId);
+    $.getJSON('/article/comment/delete?commentId='+commentId,function (data) {
+      initComment(data);
+      layer.closeAll();
+      openCommentArea();
+    })
+
+  }
   function like(component){
-    console.log($(component).attr("id"));
     var data={
       uuid:$(component).attr("id")
     }
