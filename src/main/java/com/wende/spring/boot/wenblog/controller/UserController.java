@@ -237,8 +237,6 @@ public class UserController {
         return result.toString();
     }
 
-
-
     @GetMapping("/changePwd")
     public String toChangePasswordPage(){
         return "changepwd";
@@ -256,5 +254,13 @@ public class UserController {
         }else {
             return "fail";
         }
+    }
+
+    @RequestMapping("/authUserId")
+    @ResponseBody
+    public String getAuthUserId(){
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("authUserId",authenticationService.getAuthUserId());
+        return jsonObject.toString();
     }
 }

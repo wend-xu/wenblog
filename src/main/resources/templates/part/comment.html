@@ -20,8 +20,12 @@
                     <div class="layui-row">
                         <div class="layui-col-xs10" style="font-size: 18px">{{item.commentTime}}来自：{{item.commentUserName}}</div>
                         <div class="layui-col-xs2" style="text-align: right">
+                            {{# if(item.recoverable){ }}
                             <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" onclick="publicChildCommenet({{item.id}})" >回复</button>
+                            {{# } }}
+                            {{# if(item.deleteable){ }}
                             <button class="layui-btn layui-btn-radius layui-btn-danger layui-btn-sm" onclick="dropComment({{item.id}})">删除</button>
+                            {{# } }}
                         </div>
                     </div>
                 </div>
@@ -36,8 +40,12 @@
                                 <div class="layui-row">
                                     <div class="layui-col-xs8">{{item.childComments[0].commentUserName}}回复 {{item.childComments[0].beCommentUserName}} {{item.childComments[0].commentTime}}</div>
                                     <div class="layui-col-xs4" style="text-align: right">
+                                        {{# if(item.childComments[0].recoverable){ }}
                                         <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" onclick="publicChildCommenet({{item.childComments[0].id}})">回复</button>
+                                        {{# } }}
+                                        {{# if(item.childComments[0].deleteable){ }}
                                         <button class="layui-btn layui-btn-radius layui-btn-danger layui-btn-sm" onclick="dropComment({{item.childComments[0].id}})">删除</button>
+                                        {{# } }}
                                     </div>
                                 </div>
                             </div>
@@ -52,8 +60,12 @@
                                 <div class="layui-row">
                                     <div class="layui-col-xs8"><h5>{{item.childComments[1].commentUserName}} 回复 {{item.childComments[1].beCommentUserName}} {{item.childComments[1].commentTime}}</h5></div>
                                     <div class="layui-col-xs4" style="text-align: right">
+                                        {{# if(item.childComments[1].recoverable){ }}
                                         <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" onclick="publicChildCommenet({{item.childComments[1].id}})">回复</button>
+                                        {{# } }}
+                                        {{# if(item.childComments[1].deleteable){ }}
                                         <button class="layui-btn layui-btn-radius layui-btn-danger layui-btn-sm" onclick="dropComment({{item.childComments[1].id}})">删除</button>
+                                        {{# } }}
                                     </div>
                                 </div>
                             </div>
@@ -76,8 +88,12 @@
                                             <div class="layui-row">
                                                 <div class="layui-col-xs8"><h5>{{item.commentUserName}} 回复 {{item.beCommentUserName}} {{item.commentTime}}</h5></div>
                                                 <div class="layui-col-xs4" style="text-align: right">
+                                                    {{# if(item.recoverable){ }}
                                                     <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" onclick="publicChildCommenet({{item.id}})">回复</button>
+                                                    {{# } }}
+                                                    {{# if(item.deleteable){ }}
                                                     <button class="layui-btn layui-btn-radius layui-btn-danger layui-btn-sm" onclick="dropComment({{item.id}})">删除</button>
+                                                    {{# } }}
                                                 </div>
                                             </div>
                                         </div>
