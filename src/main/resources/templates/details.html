@@ -295,6 +295,24 @@
     })
   }
 
+  function isLogin() {
+    var result = 0;
+    $.ajax({
+      url:'/user/authUserId',
+      dateType:'json',
+      type:'get',
+      async:false,
+      success:function (data) {
+        data = eval('(' + data + ')');
+        result = data.authUserId;
+      },
+      error:function () {
+        result = 0;
+      }
+    })
+    return result;
+  }
+
   function publicChildCommenet(parentId) {
     layer.closeAll();
     openPublicArea(parentId);
