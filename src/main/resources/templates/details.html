@@ -172,16 +172,23 @@
   }
 
   function openCommentArea() {
+    var userId = isLogin();
+    var btn = ['发表评论','关闭评论区'];
+    if(userId == 0){
+      btn =[ '关闭评论区'];
+    }
     layer.open({
       type:1
       ,title:'评论区'
       ,area:['950px','750px']
       ,content:$('#comment').html()
-      ,btn: ['发表评论','关闭评论区']
+      ,btn: btn
       ,btnAlign: 'c'
       ,yes:function () {
         layer.closeAll();
-        openPublicArea(0);
+        if(userId != 0){
+          openPublicArea(0);
+        }
       }
       ,btn2:function () {
         layer.closeAll();
@@ -270,29 +277,27 @@
       }
     }
     //可否回复删除
-    $.getJSON('/user/authUserId',function (data) {
-      var authUserId = data.authUserId;
-      if(authUserId != 0){
-        for(var i =0;i<commentData.length;i++){
-          commentData[i].recoverable = true;
-          if(commentData[i].commentUserId == authUserId ){
-            commentData[i].deleteable = true;
-          }
-          for(var j=0;j< commentData[i].childComments.length;j++){
-            commentData[i].childComments[j].recoverable = true;
-            if(commentData[i].childComments[j].commentUserId == authUserId){
-              commentData[i].childComments[j].deleteable = true;
-            }
+    var authUserId = isLogin();
+    if(authUserId != 0){
+      for(var i =0;i<commentData.length;i++){
+        commentData[i].recoverable = true;
+        if(commentData[i].commentUserId == authUserId ){
+          commentData[i].deleteable = true;
+        }
+        for(var j=0;j< commentData[i].childComments.length;j++){
+          commentData[i].childComments[j].recoverable = true;
+          if(commentData[i].childComments[j].commentUserId == authUserId){
+            commentData[i].childComments[j].deleteable = true;
           }
         }
       }
-      console.log(commentData);
-      var commentTemplate =document.getElementById('commentTpl').innerHTML;
-      var comment = document.getElementById('comment');
-      layui.laytpl(commentTemplate).render(commentData, function(html){
-        comment.innerHTML = html;
-      });
-    })
+    }
+    console.log(commentData);
+    var commentTemplate =document.getElementById('commentTpl').innerHTML;
+    var comment = document.getElementById('comment');
+    layui.laytpl(commentTemplate).render(commentData, function(html){
+      comment.innerHTML = html;
+    });
   }
 
   function isLogin() {
