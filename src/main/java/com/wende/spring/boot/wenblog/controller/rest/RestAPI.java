@@ -95,7 +95,16 @@ public class RestAPI {
     }
 
     @RequestMapping("/article/comment")
-    public List<ArticleComment> getComment(@RequestParam(value = "articleId",defaultValue = "0")String articleId){
-        return articleService.findArticleComment(articleId);
+    public List<ArticleComment> getComment(@RequestParam(value = "articleId",defaultValue = "0")String articleId,
+                                           @RequestParam(value = "page" ,defaultValue = ArticleConstant.COMMENT_DEFAULT_PAGE)String page,
+                                           @RequestParam(value = "size",defaultValue = ArticleConstant.COMMENT_DEFAULT_SIZE)String size,
+                                           @RequestParam(value = "sort", defaultValue = "desc")String sort){
+        return articleService.findArticleComment(articleId,page,size,sort);
+    }
+
+    @RequestMapping("/article/comment/count")
+    public long getCommentCount(@RequestParam(value = "articleId",defaultValue = "0")String articleId){
+        long articleIdL = Long.valueOf(articleId);
+        return articleService.getCommentCount(articleIdL);
     }
 }

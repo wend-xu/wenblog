@@ -45,6 +45,10 @@ public interface ArticleService {
 
     void isNewArticles(List<Article> article,long userId);
 
+    List<ArticleComment> findArticleComment(long articleId,int page,int size,String sort);
+
+    List<ArticleComment> findArticleComment(String articleId,String page,String size,String sort);
+
     List<ArticleComment> findArticleComment(long articleId);
 
     List<ArticleComment> findArticleComment(String articleId);
@@ -60,4 +64,8 @@ public interface ArticleService {
     List<ArticleComment> deleteComment(long id);
 
     List<ArticleComment> publicComment(ArticleComment comment);
+
+    long getCommentCount(long articleId);
+
+    long getChildCommentCount(long articleId,long parentId);
 }

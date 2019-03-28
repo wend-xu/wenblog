@@ -8,6 +8,7 @@ import com.wende.spring.boot.wenblog.service.AuthenticationService;
 import com.wende.spring.boot.wenblog.service.UserService;
 import com.wende.spring.boot.wenblog.util.ParseTool;
 import com.wende.spring.boot.wenblog.util.constant.ArticleConstant;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -155,22 +156,52 @@ public class ArticleController {
 
     @RequestMapping("/comment/public")
     @ResponseBody
-    public List<ArticleComment> publicComment(@RequestBody ArticleComment articleComment){
+    public List<ArticleComment> publicComment(@RequestBody String request){
+        JSONObject requestJSON = JSONObject.fromObject(request);
+        if(requestJSON.getString("commentContent").equals("") || requestJSON.getLong("commentArticleId")==0){
+            return null;
+        }
+        ArticleComment articleComment = new ArticleComment();
+        articleComment.setCommentContent(requestJSON.getString("commentContent"));
+        articleComment.setCommentArticleId(requestJSON.getLong("commentArticleId"));
+
         User authUser = userService.getUserById(authenticationService.getAuthUserId());
-        List<ArticleComment> comments = null;
-        if(authUser != null
-                && !articleComment.getCommentContent().equals("") && articleComment.getCommentArticleId() != 0){
+        if(authUser != null){
             articleComment.setCommentUserId(authUser.getUserId());
             articleComment.setCommentUserName(authUser.getUserName());
             articleComment.setCommentTime(ParseTool.dateToTimestamp(new Date()));
+        }else {
+            return articleService.findArticleComment(articleComment.getCommentArticleId());
+        }
+
+        List<ArticleComment> comments = null;
+        long parentId = 0;
+        if(requestJSON.has("parentId")){ parentId = requestJSON.getLong("parentId"); }
+
+        if(parentId == 0){//不要在public之后直接拿新数据，通过支持分页的新接口拿数据
+            comments = articleService.publicComment(articleComment);
+        }else if(parentId != 0){
+            articleComment.setParentId(parentId);
+            //设置父属性
+            ArticleComment parentComment = articleService.findArticleCommentByCommentId(articleComment.getParentId());
+            if(parentComment != null && parentComment.getParentId() != 0){
+                articleComment.setParentId(parentComment.getParentId());
+            }
+            articleComment.setBeCommentUserId(parentComment.getCommentUserId());
+            articleComment.setBeCommentUserName(parentComment.getCommentUserName());
             comments = articleService.publicComment(articleComment);
         }
         return comments;
     }
 
-    @RequestMapping("/comment/public/child")
+    /*@RequestMapping("/comment/public/child")
     @ResponseBody
-    public List<ArticleComment> publicChildComment(@RequestBody ArticleComment articleComment){
+    public List<ArticleComment> publicChildComment(@RequestBody String request){
+        JSONObject requestJSON = JSONObject.fromObject(request);
+        ArticleComment articleComment = new ArticleComment();
+        articleComment.setCommentContent(requestJSON.getString("commentContent"));
+
+        articleComment.setCommentArticleId(requestJSON.getLong("commentArticleId"));
         User authUser = userService.getUserById(authenticationService.getAuthUserId());
         List<ArticleComment> comments = null;
         if(authUser != null && articleComment.getParentId() != 0
@@ -180,7 +211,7 @@ public class ArticleController {
             articleComment.setCommentTime(ParseTool.dateToTimestamp(new Date()));
             //设置父属性
             ArticleComment parentComment = articleService.findArticleCommentByCommentId(articleComment.getParentId());
-            if(parentComment.getParentId() != 0){
+            if(parentComment != null && parentComment.getParentId() != 0){
                 articleComment.setParentId(parentComment.getParentId());
             }
             articleComment.setBeCommentUserId(parentComment.getCommentUserId());
@@ -188,7 +219,7 @@ public class ArticleController {
             comments = articleService.publicComment(articleComment);
         }
         return comments;
-    }
+    }*/
 
     @RequestMapping("/comment/delete")
     @ResponseBody

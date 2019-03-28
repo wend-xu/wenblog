@@ -74,7 +74,7 @@ public class ArticleServiceImpl implements ArticleService {
     public List<Article> findArticles(long userId, int articleMode ,int page, int size, String sort){
         Sort resultSort;
         //如果传入的sort标记错误，设置为默认
-        if(!verifySort(sort)){
+        if(!verifyArticleSort(sort)){
             sort = ArticleConstant.SORT_BY_PUBLIC_TIME_DESC;
         }
         //将sort标记转换为Sort用于分页
@@ -241,13 +241,40 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<ArticleComment> findArticleComment(long articleId) {
-        List<ArticleComment> comments = articleCommentDao.findArticleCommentsByCommentArticleIdAndParentId(articleId,0);
+    public List<ArticleComment> findArticleComment(long articleId,int page,int size,String sort) {
+        Sort resultSort;
+        if(sort != null && sort.contains("asc")){
+            resultSort = new Sort(Sort.Direction.ASC,"commentTime");
+        }else{
+            resultSort = new Sort(Sort.Direction.DESC,"commentTime");
+        }
+
+        List<ArticleComment> comments;
+        if(page > 0 && size > 0){
+            Pageable pageable = PageRequest.of(page-1,size,resultSort);
+            comments= articleCommentDao.findArticleCommentsByCommentArticleIdAndParentId(articleId,0,pageable);
+        }else{
+            comments = articleCommentDao.findArticleCommentsByCommentArticleIdAndParentId(articleId,0);
+        }
+
         for(ArticleComment comment:comments){
             List<ArticleComment> childComment = findChildComment(comment.getCommentArticleId(),comment.getId());
             comment.setChildComments(childComment);
         }
         return comments;
+    }
+
+    @Override
+    public List<ArticleComment> findArticleComment(String articleId, String page, String size, String sort) {
+        long articleIdL = Long.valueOf(articleId);
+        int pageI = Integer.valueOf(page);
+        int sizeI = Integer.valueOf(size);
+        return findArticleComment(articleIdL,pageI,sizeI,sort);
+    }
+
+    @Override
+    public List<ArticleComment> findArticleComment(long articleId) {
+        return findArticleComment(articleId,0,0,"");
     }
 
     @Override
@@ -296,7 +323,17 @@ public class ArticleServiceImpl implements ArticleService {
         return findArticleComment(comment.getCommentArticleId());
     }
 
-    private boolean verifySort(String sort){
+    @Override
+    public long getCommentCount(long articleId) {
+        return articleCommentDao.countArticleCommentsByCommentArticleIdAndParentId(articleId,0);
+    }
+
+    @Override
+    public long getChildCommentCount(long articleId, long parentId) {
+        return articleCommentDao.countArticleCommentsByCommentArticleIdAndParentId(articleId,parentId);
+    }
+
+    private boolean verifyArticleSort(String sort){
         String[] sortBys = ArticleConstant.ARTICLE_SORT_ACCORDING;
         for(String sortBy:sortBys){
             if(sort.contains(sortBy)){

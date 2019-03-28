@@ -1,5 +1,7 @@
 package com.wende.spring.boot.wenblog.util.constant;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class ArticleConstant {
     public static final int ARTICLE_DRAFT = 1;
     public static final int ARTICLE_PUBLIC = 2;
@@ -8,6 +10,9 @@ public class ArticleConstant {
 
     public static final String INDEX_DEFAULT_PAGE = "1";
     public static final String INDEX_DEFAULT_SIZE = "20";
+
+    public static final String COMMENT_DEFAULT_PAGE = "1";
+    public static final String COMMENT_DEFAULT_SIZE = "10";
 
     public static final String[] ARTICLE_SORT_ACCORDING =
             {"id","articleTitle","articleSummary","articleContent","articleTime","lastUpdateTime","articleClick","articleLike"};

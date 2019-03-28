@@ -61,8 +61,6 @@
             ,layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
             ,count: data//数据总数，从服务端得到
             ,jump:function (obj, first) {
-              console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
-              console.log(obj.limit); //得到每页显示的条数
               if(!first){
                 $.ajax({
                   type:'post',

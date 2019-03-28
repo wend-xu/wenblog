@@ -82,9 +82,7 @@
   </div>
 </div>
 <div id="comment" hidden="hidden"></div>
-<div id="publicArea" hidden="hidden">
-
-</div>
+<div id="publicArea" hidden="hidden"></div>
 <div th:replace="part/comment::comment"></div>
 
 <script src="/js/util/jquery.min.js"></script>
@@ -103,10 +101,13 @@
 <script th:inline="javascript">
   var header = $("meta[name='_csrf_header']").attr("content");
   var token =$("meta[name='_csrf']").attr("content");
+  var articleId = [[${article.id}]];
+  var commentCurrPage = 1;
+  var commentPageSize = 8;
 
   layui.config({
       base: '/js/util/'
-  }).use(['layer', 'jquery','form','element','util','laytpl','layedit'], function() {
+  }).use(['layer', 'jquery','form','element','util','laytpl','layedit','laypage'], function() {
     var element = layui.element;
     var laytpl = layui.laytpl;
     var layedit = layui.layedit;
@@ -120,7 +121,7 @@
 
     window.onload =contentInit();
     function contentInit(){
-      $.getJSON('/rest/article/comment?articleId='+[[${article.id}]],function (data) {initComment(data);})
+      $.getJSON('/rest/article/comment?articleId='+articleId+'&size='+commentPageSize,function (data) {initComment(data);})
       editormd.markdownToHTML("markdownToHTML", {
         htmlDecode      : "style,script,iframe",
         emoji           : true,  // 解析表情
@@ -138,8 +139,6 @@
         }
       }
     });
-
-
 
     $('#edit').click(function () {
       var articleUUID = [[${article.articleUUID}]];
@@ -181,7 +180,7 @@
       type:1
       ,title:'评论区'
       ,area:['950px','750px']
-      ,content:$('#comment').html()
+      ,content:$('#comment').html()+"<div style='text-align: center' id='commentPage'></div>"
       ,btn: btn
       ,btnAlign: 'c'
       ,yes:function () {
@@ -193,10 +192,51 @@
       ,btn2:function () {
         layer.closeAll();
       }
-      , success: function(layero, index){
+      ,success: function(layero, index){
         reloadElement('collapse','comment');
+        var count = getCommentCount(articleId)
+        pageController(count,commentCurrPage,commentPageSize,commentCurrPage,layero);
       }
     })
+  }
+
+  function pageController(count,page,size,curr,layero){
+    layui.laypage.render({
+      elem: 'commentPage'
+      ,count: count
+      ,limit:size
+      ,curr:curr
+      ,jump: function(obj, first){
+        page = obj.curr;
+        size = obj.limit;
+        if(!first){
+          $.getJSON('/rest/article/comment?page='+page+'&size='+size+'&articleId='+articleId,function (data) {
+            layero.empty();
+            commentCurrPage = page;
+            initComment(data);
+            layer.closeAll();
+            openCommentArea();
+          })
+        }
+      }
+    });
+  }
+
+  function getCommentCount(articleId) {
+    var result = 0;
+    $.ajax({
+      url:'/rest/article/comment/count?articleId='+articleId,
+      dateType:'text',
+      type:'get',
+      async:false,
+      success:function (data) {
+        result = data
+      },
+      error:function () {
+        result = 0;
+      }
+    })
+    return result;
   }
 
   var commentEdit;
@@ -235,7 +275,6 @@
         commentContent:commentContent,
         commentArticleId:commentArticleId
       }
-      url = '/article/comment/public/child'
     }
 
     if(commentContent == ""){
@@ -268,6 +307,7 @@
 
   function initComment(commentData) {
     //格式化时间
+    console.log(commentData)
     for(var i =0;i<commentData.length;i++){
       var date = new Date(commentData[i].commentTime).toLocaleString();
       commentData[i].commentTime = date;
@@ -292,7 +332,7 @@
         }
       }
     }
-    console.log(commentData);
+    //console.log(commentData);
     var commentTemplate =document.getElementById('commentTpl').innerHTML;
     var comment = document.getElementById('comment');
     layui.laytpl(commentTemplate).render(commentData, function(html){
