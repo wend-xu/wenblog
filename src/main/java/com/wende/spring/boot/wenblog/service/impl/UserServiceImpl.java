@@ -1,5 +1,6 @@
 package com.wende.spring.boot.wenblog.service.impl;
 
+import com.wende.spring.boot.wenblog.dao.article.ArticleCommentDao;
 import com.wende.spring.boot.wenblog.dao.article.ArticleDao;
 import com.wende.spring.boot.wenblog.dao.config.CityDao;
 import com.wende.spring.boot.wenblog.dao.config.ProvincialDao;
@@ -7,6 +8,7 @@ import com.wende.spring.boot.wenblog.dao.photo.PhotoDao;
 import com.wende.spring.boot.wenblog.dao.user.UserDao;
 import com.wende.spring.boot.wenblog.dao.user.UserDataDao;
 import com.wende.spring.boot.wenblog.domain.article.Article;
+import com.wende.spring.boot.wenblog.domain.article.ArticleComment;
 import com.wende.spring.boot.wenblog.domain.config.City;
 import com.wende.spring.boot.wenblog.domain.config.Provincial;
 import com.wende.spring.boot.wenblog.domain.photo.Photo;
@@ -45,6 +47,8 @@ public class UserServiceImpl implements UserService {
     CityDao cityDao;
     @Autowired
     ArticleDao articleDao;
+    @Autowired
+    ArticleCommentDao articleCommentDao;
 
     @Value("${wenblog.user.default.headportrait}")
     String defaultHeadPortraitUrl;
@@ -144,6 +148,17 @@ public class UserServiceImpl implements UserService {
             for(Article article:articles){
                 article.setUserName(username);
                 articleDao.save(article);
+            }
+            //跟新comment中的username
+            List<ArticleComment> comments = articleCommentDao.findArticleCommentsByCommentUserId(user.getUserId());
+            for(ArticleComment comment:comments){
+                comment.setCommentUserName(username);
+                articleCommentDao.save(comment);
+            }
+            comments = articleCommentDao.findArticleCommentsByBeCommentUserId(user.getUserId());
+            for(ArticleComment comment:comments){
+                comment.setBeCommentUserName(username);
+                articleCommentDao.save(comment);
             }
         }
         userDao.save(user);

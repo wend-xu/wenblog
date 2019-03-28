@@ -22,4 +22,8 @@ public interface ArticleCommentDao extends JpaRepository<ArticleComment,Long> {
     List<ArticleComment> findArticleCommentsByCommentArticleIdAndParentId(long articleId, long parentId, Pageable pageable);
 
     long countArticleCommentsByCommentArticleIdAndParentId(long articleId, long parentId);
+
+    List<ArticleComment> findArticleCommentsByCommentUserId(long id);
+
+    List<ArticleComment> findArticleCommentsByBeCommentUserId(long id);
 }

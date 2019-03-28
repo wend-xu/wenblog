@@ -7,10 +7,12 @@
   <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
   <title>文章</title>
   <link rel="stylesheet" href="/layui/css/layui.css"/>
-    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
+  <link rel="stylesheet" type="text/css" href="/css/main.css"/>
   <link rel="stylesheet" href="/editormd/css/editormd.css" />
   <!-- 页面解析markdown为HTML显示需要的css -->
   <link rel="stylesheet" href="/editormd/css/editormd.preview.css" />
+  <script type="text/javascript" src="/layui/layui.js"></script>
+  <script type="text/javascript" src="/js/util/jquery.min.js"></script>
 </head>
 <body >
 <!-- 弹出框 -->
@@ -85,10 +87,7 @@
 <div id="publicArea" hidden="hidden"></div>
 <div th:replace="part/comment::comment"></div>
 
-<script src="/js/util/jquery.min.js"></script>
-<script src="/layui/layui.js"></script>
 <script src="/editormd/src/editormd.js"></script>
-
 <!-- 页面markdown解析成HTML需要的js -->
 <script src="/editormd/lib/marked.min.js"></script>
 <script src="/editormd/lib/prettify.min.js"></script>
@@ -315,6 +314,12 @@
       for(var j=0;j< commentData[i].childComments.length;j++){
         var dateChild = new Date(commentData[i].childComments[j].commentTime).toLocaleString();
         commentData[i].childComments[j].commentTime = dateChild;
+          if(commentData[i].childComments[j].commentUserName != null && commentData[i].childComments[j].commentUserName.length>16){
+              commentData[i].childComments[j].commentUserName = commentData[i].childComments[j].commentUserName.substring(0,15)+"..."
+          }
+          if(commentData[i].childComments[j].beCommentUserName != null && commentData[i].childComments[j].beCommentUserName.length>16){
+              commentData[i].childComments[j].beCommentUserName = commentData[i].childComments[j].beCommentUserName.substring(0,15)+"..."
+          }
       }
     }
     //可否回复删除

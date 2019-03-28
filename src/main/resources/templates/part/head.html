@@ -34,7 +34,6 @@
 
 <div class="layui-layout-admin layui-header" style="position:fixed;width: 100%;background-color: #393D49;" th:fragment="head">
     <div class="layui-logo">WENBLOG</div>
-    <!-- 头部区域（可配合layui已有的水平导航） -->
     <ul class="layui-nav layui-layout-left" th:if="${session.user} ne null">
         <li class="layui-nav-item">
             <a href="/article/getall">博客广场</a>
@@ -95,6 +94,14 @@
             </dl>
         </li>
         <li class="layui-nav-item"><a href="/user/logout">退出</a></li>
+        <script type="text/javascript">
+            $('#search').bind('keypress',function(event){//监听sim卡回车事件
+                if(event.keyCode == "13")
+                {
+
+                }
+            });
+        </script>>
     </ul>
     <ul class="layui-nav layui-layout-right" th:if="${session.user} eq null">
         <li class="layui-nav-item"><a href="/user/loginpage">登录</a></li>
