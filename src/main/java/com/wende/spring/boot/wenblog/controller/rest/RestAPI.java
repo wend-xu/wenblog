@@ -60,12 +60,7 @@ public class RestAPI {
         return articleService.getArticleCount()+"";
     }
 
-    @RequestMapping("/article/count/byuser")
-    public String countArticleByUser(@RequestParam(value = "userid") String userId,
-                                     @RequestParam(value = "mode")String mode){
-        return articleService.getArticleCountByUserId(userId,mode)+"";
-    }
-
+    //返回特地用户的文章数
     //需已登录或者通过token才能获取某个用户的文章数目
     @RequestMapping("/article/count")
     public String countArticle(@RequestParam(value = "token",defaultValue = "0")String token,

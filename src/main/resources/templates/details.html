@@ -285,18 +285,21 @@
       url:url,
       type:'post',
       data:JSON.stringify(comment),
-      dataType:'json',
+      dataType:'text',
       contentType: "application/json",
       beforeSend : function(xhr) {
         xhr.setRequestHeader(header, token);
       },
       success:function (result) {
-        console.log(result);
-        if(result != null){
+        if(result == 'success'){
           layer.msg("发表成功");
-          initComment(result);
-          layer.closeAll();
-          openCommentArea();
+          $.getJSON('/rest/article/comment?articleId='+articleId+'&size='+commentPageSize+'&page='+commentCurrPage,function (data) {
+              initComment(data);
+              layer.closeAll();
+              openCommentArea();
+          })
+        }else{
+          layer.msg("发表失败");
         }
       },
       error:function () {
@@ -306,8 +309,6 @@
   }
 
   function initComment(commentData) {
-    //格式化时间
-    console.log(commentData)
     for(var i =0;i<commentData.length;i++){
       var date = new Date(commentData[i].commentTime).toLocaleString();
       commentData[i].commentTime = date;
@@ -332,7 +333,6 @@
         }
       }
     }
-    //console.log(commentData);
     var commentTemplate =document.getElementById('commentTpl').innerHTML;
     var comment = document.getElementById('comment');
     layui.laytpl(commentTemplate).render(commentData, function(html){
@@ -365,10 +365,16 @@
 
   function dropComment(commentId) {
     layer.msg(commentId);
-    $.getJSON('/article/comment/delete?commentId='+commentId,function (data) {
-      initComment(data);
-      layer.closeAll();
-      openCommentArea();
+    $.get('/article/comment/delete?commentId='+commentId,function (data) {
+        if(data== "success"){
+            $.getJSON('/rest/article/comment?articleId='+articleId+'&size='+commentPageSize+'&page='+commentCurrPage,function (data) {
+                initComment(data);
+                layer.closeAll();
+                openCommentArea();
+            })
+        }else{
+            layer.msg("发表失败")
+        }
     })
 
   }
@@ -398,7 +404,7 @@
         $(component).text(data)
       },
       error:function () {
-        console.log("request error");
+        layer.msg("request error");
       }
     })
   }

@@ -59,9 +59,9 @@ public interface ArticleService {
 
     ArticleComment findArticleCommentByCommentId(long id);
 
-    List<ArticleComment> deleteComment(String id);
+    boolean deleteComment(String id);
 
-    List<ArticleComment> deleteComment(long id);
+    boolean deleteComment(long id);
 
     List<ArticleComment> publicComment(ArticleComment comment);
 

@@ -300,20 +300,21 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<ArticleComment> deleteComment(String id) {
+    public boolean deleteComment(String id) {
         long idl = Long.valueOf(id);
         return deleteComment(idl);
     }
 
     @Override
     @Transactional
-    public List<ArticleComment> deleteComment(long id) {
+    public boolean deleteComment(long id) {
         ArticleComment comment = articleCommentDao.findArticleCommentById(id);
         if(comment != null){
             articleCommentDao.deleteById(comment.getId());
             articleCommentDao.deleteByParentId(comment.getId());
+            return true;
         }
-        return findArticleComment(comment.getCommentArticleId());
+        return false;
     }
 
     @Override

@@ -88,7 +88,7 @@ public class ArticleController {
         model.addAttribute("articles",articles);
         model.addAttribute("curr",page);
         model.addAttribute("size",size);
-        model.addAttribute("targetapi","/article/getall");
+        model.addAttribute("targetApi","/article/getall?");
         model.addAttribute("targetCountApi","/rest/article/count/all");
         return "index";
     }
@@ -156,10 +156,10 @@ public class ArticleController {
 
     @RequestMapping("/comment/public")
     @ResponseBody
-    public List<ArticleComment> publicComment(@RequestBody String request){
+    public String publicComment(@RequestBody String request){
         JSONObject requestJSON = JSONObject.fromObject(request);
         if(requestJSON.getString("commentContent").equals("") || requestJSON.getLong("commentArticleId")==0){
-            return null;
+            return "fail";
         }
         ArticleComment articleComment = new ArticleComment();
         articleComment.setCommentContent(requestJSON.getString("commentContent"));
@@ -171,27 +171,33 @@ public class ArticleController {
             articleComment.setCommentUserName(authUser.getUserName());
             articleComment.setCommentTime(ParseTool.dateToTimestamp(new Date()));
         }else {
-            return articleService.findArticleComment(articleComment.getCommentArticleId());
+            return "fail";
         }
 
-        List<ArticleComment> comments = null;
         long parentId = 0;
         if(requestJSON.has("parentId")){ parentId = requestJSON.getLong("parentId"); }
 
+        List<ArticleComment> comments = null;
         if(parentId == 0){//不要在public之后直接拿新数据，通过支持分页的新接口拿数据
             comments = articleService.publicComment(articleComment);
         }else if(parentId != 0){
             articleComment.setParentId(parentId);
             //设置父属性
-            ArticleComment parentComment = articleService.findArticleCommentByCommentId(articleComment.getParentId());
-            if(parentComment != null && parentComment.getParentId() != 0){
-                articleComment.setParentId(parentComment.getParentId());
+            ArticleComment parentComment = articleService.findArticleCommentByCommentId(parentId);
+            if(parentComment != null){
+                articleComment.setBeCommentUserId(parentComment.getCommentUserId());
+                articleComment.setBeCommentUserName(parentComment.getCommentUserName());
+                if(parentComment.getParentId() != 0){
+                    articleComment.setParentId(parentComment.getParentId());
+                }
             }
-            articleComment.setBeCommentUserId(parentComment.getCommentUserId());
-            articleComment.setBeCommentUserName(parentComment.getCommentUserName());
             comments = articleService.publicComment(articleComment);
         }
-        return comments;
+        //由于是发表文章，发表成功不存在拿到null
+        if(comments != null)
+            return "success";
+        else
+            return "fail";
     }
 
     /*@RequestMapping("/comment/public/child")
@@ -223,7 +229,11 @@ public class ArticleController {
 
     @RequestMapping("/comment/delete")
     @ResponseBody
-    public List<ArticleComment> dropComment(@RequestParam(value = "commentId") String commentId){
-        return articleService.deleteComment(commentId);
+    public String dropComment(@RequestParam(value = "commentId") String commentId){
+       if(articleService.deleteComment(commentId)){
+           return  "success";
+       }else{
+           return "删除失败，无法找到该评论";
+       }
     }
 }
