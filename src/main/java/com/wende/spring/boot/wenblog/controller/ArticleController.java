@@ -90,7 +90,65 @@ public class ArticleController {
         model.addAttribute("size",size);
         model.addAttribute("targetApi","/article/getall?");
         model.addAttribute("targetCountApi","/rest/article/count/all");
+        model.addAttribute("title","所有博客");
         return "index";
+    }
+
+    @RequestMapping("/get/byuser")
+    public String getArticleByUser(@RequestParam(value = "page", defaultValue = ArticleConstant.INDEX_DEFAULT_PAGE)String page,
+                                   @RequestParam(value = "size", defaultValue = ArticleConstant.INDEX_DEFAULT_SIZE)String size,
+                                   @RequestParam(value = "sort", defaultValue = ArticleConstant.SORT_BY_UPDATE_TIME_DESC)String sort,
+                                   @RequestParam(value = "mode", defaultValue = ArticleConstant.ARTICLE_PUBLIC+"")String mode,
+                                   Model model){
+        String userId = authenticationService.getAuthUserId()+"";
+        if(!userId.equals("0")){
+            //允许用户访问的仅有发表和草稿，已删除文章将作为后续添加的管理员模块的权限
+            List<Article> articles;
+            if(mode.equals(ArticleConstant.ARTICLE_DRAFT+"")){
+                articles =articleService.findArticles(userId,ArticleConstant.ARTICLE_DRAFT,page,size,sort);
+                model.addAttribute("targetCountApi"
+                        ,"/rest/article/count?mode=1");
+                model.addAttribute("targetApi","/article/get/byuser?mode=1&");
+            }else{
+                articles =articleService.findArticles(userId,ArticleConstant.ARTICLE_PUBLIC,page,size,sort);
+                model.addAttribute("targetCountApi","/rest/article/count");
+                model.addAttribute("targetApi","/article/get/byuser?");
+            }
+            articleService.hasArticlesLikeOrClick(articles,authenticationService.getAuthUserId());
+            articleService.isNewArticles(articles,authenticationService.getAuthUserId());
+            model.addAttribute("articles",articles);
+        }
+        String userName = userService.getUserById(authenticationService.getAuthUserId()).getUserName();
+        model.addAttribute("curr",page);
+        model.addAttribute("size",size);
+        model.addAttribute("title",userName+" 的博客");
+        return "index";
+    }
+
+    @RequestMapping("/search")
+    public String searchArticle(@RequestParam(value = "keyword")String keyword,
+                                @RequestParam(value = "page", defaultValue = ArticleConstant.INDEX_DEFAULT_PAGE)String page,
+                                @RequestParam(value = "size", defaultValue = ArticleConstant.INDEX_DEFAULT_SIZE)String size,
+                                @RequestParam(value = "sort", defaultValue = ArticleConstant.SORT_BY_UPDATE_TIME_DESC)String sort,
+                                Model model){
+        List<Article> articles = articleService.search(keyword,ArticleConstant.ARTICLE_PUBLIC,page,size,sort);
+        model.addAttribute("articles",articles);
+        model.addAttribute("curr",page);
+        model.addAttribute("size",size);
+        model.addAttribute("keyword",keyword);
+        model.addAttribute("targetCountApi","/article/search/count?keyword="+keyword);
+        model.addAttribute("targetApi","/article/search?keyword="+keyword+"&");
+        model.addAttribute("title","key:“"+keyword+"”的搜索结果");
+        return "index";
+    }
+
+    @RequestMapping("/search/count")
+    @ResponseBody
+    public String needSearchCount(@RequestParam(value = "keyword")String keyword){
+        if(keyword != "")
+            return articleService.searchResultCount(keyword,ArticleConstant.ARTICLE_PUBLIC)+"";
+        else
+            return "0";
     }
 
     @RequestMapping("/edit")
@@ -123,35 +181,6 @@ public class ArticleController {
             return "未登录";
         }
         return articleService.articleLike(uuid,authenticationService.getAuthUserId())+"";
-    }
-
-    @RequestMapping("/get/byuser")
-    public String getArticleByUser(@RequestParam(value = "page", defaultValue = ArticleConstant.INDEX_DEFAULT_PAGE)String page,
-                                   @RequestParam(value = "size", defaultValue = ArticleConstant.INDEX_DEFAULT_SIZE)String size,
-                                   @RequestParam(value = "sort", defaultValue = ArticleConstant.SORT_BY_UPDATE_TIME_DESC)String sort,
-                                   @RequestParam(value = "mode", defaultValue = ArticleConstant.ARTICLE_PUBLIC+"")String mode,
-                                   Model model){
-        String userId = authenticationService.getAuthUserId()+"";
-        if(!userId.equals("0")){
-            //允许用户访问的仅有发表和草稿，已删除文章将作为后续添加的管理员模块的权限
-            List<Article> articles;
-            if(mode.equals(ArticleConstant.ARTICLE_DRAFT+"")){
-                articles =articleService.findArticles(userId,ArticleConstant.ARTICLE_DRAFT,page,size,sort);
-                model.addAttribute("targetCountApi"
-                        ,"/rest/article/count?mode=1");
-                model.addAttribute("targetApi","/article/get/byuser?mode=1&");
-            }else{
-                articles =articleService.findArticles(userId,ArticleConstant.ARTICLE_PUBLIC,page,size,sort);
-                model.addAttribute("targetCountApi","/rest/article/count");
-                model.addAttribute("targetApi","/article/get/byuser?");
-            }
-            articleService.hasArticlesLikeOrClick(articles,authenticationService.getAuthUserId());
-            articleService.isNewArticles(articles,authenticationService.getAuthUserId());
-            model.addAttribute("articles",articles);
-        }
-        model.addAttribute("curr",page);
-        model.addAttribute("size",size);
-        return "index";
     }
 
     @RequestMapping("/comment/public")

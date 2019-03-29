@@ -72,18 +72,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<Article> findArticles(long userId, int articleMode ,int page, int size, String sort){
-        Sort resultSort;
-        //如果传入的sort标记错误，设置为默认
-        if(!verifyArticleSort(sort)){
-            sort = ArticleConstant.SORT_BY_PUBLIC_TIME_DESC;
-        }
-        //将sort标记转换为Sort用于分页
-        if(sort.contains("desc")){
-            resultSort= new Sort(Sort.Direction.DESC,sort.replace("-desc",""));
-        }else{
-            resultSort= new Sort(Sort.Direction.ASC,sort.replace("-asc",""));
-        }
-
+        Sort resultSort = createArticleSort(sort);
         Pageable pageable = PageRequest.of(page-1,size,resultSort);
 
         //根据需求返回文章
@@ -241,6 +230,30 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public List<Article> search(String keyword, int articleMode,int page,int size,String sort) {
+        if(keyword == null || keyword.equals("")){return null;}
+        if(page < 1){page =1;}
+        page = page - 1;
+        Sort resultSort = createArticleSort(sort);
+        Pageable pageable = PageRequest.of(page,size,resultSort);
+        return articleDao.
+                findDistinctByArticleModeAndArticleTitleContainingOrArticleModeAndArticleSummaryContainingOrArticleModeAndArticleContentContaining
+                        (articleMode,keyword,articleMode,keyword,articleMode,keyword,pageable);
+    }
+
+    @Override
+    public List<Article> search(String keyword,int articleMode, String page, String size, String sort) {
+        int pageI = Integer.valueOf(page);
+        int sizeI = Integer.valueOf(size);
+        return search(keyword,articleMode,pageI,sizeI,sort);
+    }
+
+    @Override
+    public long searchResultCount(String keyword, int mode) {
+        return articleDao.countDistinctByArticleModeAndArticleTitleContainingOrArticleModeAndArticleSummaryContainingOrArticleModeAndArticleContentContaining(mode,keyword,mode,keyword,mode,keyword);
+    }
+
+    @Override
     public List<ArticleComment> findArticleComment(long articleId,int page,int size,String sort) {
         Sort resultSort;
         if(sort != null && sort.contains("asc")){
@@ -334,13 +347,25 @@ public class ArticleServiceImpl implements ArticleService {
         return articleCommentDao.countArticleCommentsByCommentArticleIdAndParentId(articleId,parentId);
     }
 
-    private boolean verifyArticleSort(String sort){
+    private Sort createArticleSort(String sort){
+        boolean sortLegal = false;
+        Sort resultSort;
         String[] sortBys = ArticleConstant.ARTICLE_SORT_ACCORDING;
         for(String sortBy:sortBys){
             if(sort.contains(sortBy)){
-                return true;
+                sortLegal = true;
+                break;
             }
         }
-        return false;
+        if(!sortLegal){
+            sort = ArticleConstant.SORT_BY_PUBLIC_TIME_DESC;
+        }
+        //将sort标记转换为Sort用于分页
+        if(sort.contains("desc")){
+            resultSort= new Sort(Sort.Direction.DESC,sort.replace("-desc",""));
+        }else{
+            resultSort= new Sort(Sort.Direction.ASC,sort.replace("-asc",""));
+        }
+        return resultSort;
     }
 }

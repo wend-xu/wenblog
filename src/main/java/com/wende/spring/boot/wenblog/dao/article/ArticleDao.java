@@ -21,13 +21,11 @@ public interface ArticleDao extends JpaRepository<Article,Long> {
 
     long countArticleByArticleMode(int articleMode);
 
-    List<Article> findArticlesByArticleTitleContaining(String title);
-
-    List<Article> findArticlesByArticleKeywordContaining(String keyword);
-
-    List<Article> findArticlesByArticleSummaryContaining(String article);
-
     List<Article> findArticlesByArticleContentContaining(String Content);
 
     List<Article> findArticlesByArticleMode(int mode,Pageable pageable);
+
+    List<Article> findDistinctByArticleModeAndArticleTitleContainingOrArticleModeAndArticleSummaryContainingOrArticleModeAndArticleContentContaining(int mode,String titleKey,int mode1,String summaryKey,int mode2,String contentKey,Pageable pageable);
+
+    long countDistinctByArticleModeAndArticleTitleContainingOrArticleModeAndArticleSummaryContainingOrArticleModeAndArticleContentContaining(int mode,String titleKey,int mode1,String summaryKey,int mode2,String contentKey);
 }

@@ -73,7 +73,7 @@
     <ul class="layui-nav layui-layout-right" th:if="${session.user} ne null" >
         <!-- <a href="/user/datapage"><img src="http://t.cn/RCzsdCq" class="layui-nav-img"></a> -->
         <li class="layui-nav-item">
-            <input type="text" placeholder="点击Enter搜索" id="search" name="search" class="layui-input">
+            <input type="text" placeholder="点击Enter搜索" id="search" name="search" class="layui-input" th:value="${keyword}">
         </li>
 
         <li class="layui-nav-item">
@@ -95,10 +95,14 @@
         </li>
         <li class="layui-nav-item"><a href="/user/logout">退出</a></li>
         <script type="text/javascript">
-            $('#search').bind('keypress',function(event){//监听sim卡回车事件
-                if(event.keyCode == "13")
+            $('#search').bind('keypress',function(event){
+                if(event.keyCode == "13" )
                 {
-
+                    if(!$('#search').val()){
+                        layer.msg("请输入关键字")
+                        return;
+                    }
+                    location.href = '/article/search?keyword='+$('#search').val();
                 }
             });
         </script>>

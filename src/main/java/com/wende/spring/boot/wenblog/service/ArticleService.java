@@ -45,6 +45,12 @@ public interface ArticleService {
 
     void isNewArticles(List<Article> article,long userId);
 
+    List<Article> search(String keyword, int articleMode,int page,int size,String sort);
+
+    List<Article> search(String keyword, int articleMode,String page,String size,String sort);
+
+    long searchResultCount(String keyword,int mode);
+
     List<ArticleComment> findArticleComment(long articleId,int page,int size,String sort);
 
     List<ArticleComment> findArticleComment(String articleId,String page,String size,String sort);
