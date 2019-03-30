@@ -24,22 +24,14 @@ public class UserData {
     long id;
     @Column(unique = true)
     long userId;
-    @Column(nullable = true)
     String userSex;
-    @Column(nullable = true)
     Date userBirthday;
-    @Column(nullable = true)
     String userDescription;
-    @Column(nullable = true)
     String userSchool;
-    @Column(nullable = true)
     String userAddress;
-    @Column(nullable = true)
     Timestamp userRegisterTime;
     String userRegisterIp;
     Timestamp userLastUpdateTime;
-    @Column(nullable = true)
     String userBloodType;
-    @Column(nullable = true)
     String userSignature;
 }

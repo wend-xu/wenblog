@@ -148,8 +148,7 @@ public class ParseTool {
             byte[] fileBytes = file.getBytes();
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             byte[] digest = md5.digest(fileBytes);
-            String hashString = new BigInteger(1, digest).toString(16);
-            return hashString;
+            return new BigInteger(1, digest).toString(16);
         } catch (Exception e) {
             e.printStackTrace();
         }

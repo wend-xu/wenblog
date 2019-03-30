@@ -2,8 +2,6 @@ package com.wende.spring.boot.wenblog.service;
 
 import com.wende.spring.boot.wenblog.domain.article.Article;
 import com.wende.spring.boot.wenblog.domain.article.ArticleComment;
-import com.wende.spring.boot.wenblog.domain.config.City;
-import com.wende.spring.boot.wenblog.domain.config.Provincial;
 
 import java.util.List;
 

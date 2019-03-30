@@ -38,7 +38,7 @@ public class ArticleController {
     @RequestMapping("/send")
     @ResponseBody
     public String publicArticle(@RequestBody Article article){
-        if(article.getArticleTitle() != "" && article.getArticleContent() != "" && article.getArticleMode() != 0){
+        if(!article.getArticleTitle().equals("") && article.getArticleContent() != "" && article.getArticleMode() != 0){
             article.setUserId(authenticationService.getAuthUserId());
             if(article.getArticleMode() == 0){
                 article.setArticleMode(ArticleConstant.ARTICLE_DRAFT);
@@ -145,7 +145,7 @@ public class ArticleController {
     @RequestMapping("/search/count")
     @ResponseBody
     public String needSearchCount(@RequestParam(value = "keyword")String keyword){
-        if(keyword != "")
+        if(!keyword.equals(""))
             return articleService.searchResultCount(keyword,ArticleConstant.ARTICLE_PUBLIC)+"";
         else
             return "0";
@@ -206,10 +206,10 @@ public class ArticleController {
         long parentId = 0;
         if(requestJSON.has("parentId")){ parentId = requestJSON.getLong("parentId"); }
 
-        List<ArticleComment> comments = null;
+        List<ArticleComment> comments;
         if(parentId == 0){//不要在public之后直接拿新数据，通过支持分页的新接口拿数据
             comments = articleService.publicComment(articleComment);
-        }else if(parentId != 0){
+        }else{
             articleComment.setParentId(parentId);
             //设置父属性
             ArticleComment parentComment = articleService.findArticleCommentByCommentId(parentId);

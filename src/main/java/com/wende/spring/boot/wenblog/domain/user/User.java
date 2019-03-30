@@ -23,21 +23,15 @@ public class User implements Serializable {
     private long userId;//用户id
     @Column(name = "user_login_name",unique = true)
     private String loginName;
-    @Column(nullable = true)
     private String userPhone;//手机号
-    @Column(nullable = true)
     private String userEmail;
-    @Column(nullable = true)
     private int userQq;
-    @Column(nullable = true)
     private String userWechat;
     @Column(columnDefinition = "varchar(255) not null default  \"INACTIVE\"")
     private String userRole;
     private String userName;
     private String userPwd;
-    @Column(nullable = true)
     private String userImageUrl;
-    @Column(nullable = true)
     private int userMark;
     @Transient
     private UserData userData;

@@ -91,14 +91,12 @@ public class UserServiceImpl implements UserService {
      * **/
     @Override
     public boolean checkEmail(String email) {
-        if(email == null || email.equals("")){
+        /*if(email == null || email.equals("")){
             return false;
         }
         User user = userDao.findUserByUserEmail(email);
-        if(user != null){
-            return true;
-        }
-        return false;
+        return user != null;*/
+        return email != null && !email.equals("") && userDao.findUserByUserEmail(email)!= null;
     }
 
     @Override

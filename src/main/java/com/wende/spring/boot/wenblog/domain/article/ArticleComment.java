@@ -21,7 +21,6 @@ public class ArticleComment {
     long beCommentUserId;
     Timestamp commentTime;
     String commentUserName;
-    @Column(nullable = true)
     String beCommentUserName;
     @Transient
     List<ArticleComment> childComments;

@@ -36,16 +36,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public List<GrantedAuthority> getUserRoles(User user) {
-        String userRole = user.getUserRole();
+        String userRole = null;
+        if(user != null){
+            userRole = user.getUserRole();
+        }
         List<GrantedAuthority> userRoles = new ArrayList<>();
-        if(userRole.contains(",")){
+        if(userRole == null || userRole.equals("")){
+            userRoles.add(new SimpleGrantedAuthority("ROLE_inactive"));
+        }else if(userRole.contains(",")){
             String[] userRolesArray = userRole.split(",");
             for(String userRoleTemp:userRolesArray){
                 if(!userRoleTemp.equals(""))
                     userRoles.add(new SimpleGrantedAuthority("ROLE_"+userRoleTemp));
             }
-        } else if(userRole == null || userRole.equals("")){
-            userRoles.add(new SimpleGrantedAuthority("ROLE_inactive"));
         }else{
             userRoles.add(new SimpleGrantedAuthority("ROLE_"+userRole));
         }
