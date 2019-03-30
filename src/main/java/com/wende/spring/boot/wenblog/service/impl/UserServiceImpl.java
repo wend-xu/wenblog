@@ -52,6 +52,8 @@ public class UserServiceImpl implements UserService {
 
     @Value("${wenblog.user.default.headportrait}")
     String defaultHeadPortraitUrl;
+    @Value("${wenblog.user.protocol.host.port}")
+    String protocolHostPort;
 
     @Override
     public String login(String loginName, String password) {
@@ -178,38 +180,49 @@ public class UserServiceImpl implements UserService {
             //保存原始文件名
             photo.setOriginName(file.getOriginalFilename());
 
-            String contentType = file.getContentType();
-            String fileType = contentType.substring(contentType.indexOf("/")+1);
-            String fileName = UUID.randomUUID().toString().replaceAll("-","")+"."+fileType;
-            String tempFloder = new Date().getTime()+"";
+            String fileMD5 = ParseTool.analysisFileMD5(file);
+            photo.setPhotoMD5(fileMD5);
+            List<Photo> photos = photoDao.findPhotosByPhotoMD5(fileMD5);
+            //如果文件已经存在，直接指向该文件
+            if(photos.size()>0){
+                photo.setPhotoUrl(photos.get(0).getPhotoUrl());
+                photoUrl=photos.get(0).getPhotoUrl();
+            }else{
+                String contentType = file.getContentType();
+                String fileType = contentType.substring(contentType.indexOf("/")+1);
+                String fileName = UUID.randomUUID().toString().replaceAll("-","")+"."+fileType;
+                String tempFloder = new Date().getTime()+"";
 
-            if(filePath == null){
-                photoUrl = "src/main/resources/static/upload/"+tempFloder+"/"+fileName;
-            }else {
-                photoUrl = filePath+"upload/"+tempFloder+"/"+fileName;
-            }
+                if(filePath == null){
+                    photoUrl = "src/main/resources/static/upload/"+tempFloder+"/"+fileName;
+                }else {
+                    photoUrl = filePath+"upload/"+tempFloder+"/"+fileName;
+                }
 
-            File saveTarget = new File(photoUrl);
-            if(!saveTarget.getParentFile().exists()){
-                saveTarget.getParentFile().mkdirs();
-            }
-            //判断是否为图片，否则返回空
-            try{
-                Image image = ImageIO.read(file.getInputStream());
-                if(image == null) return null;
-                file.transferTo(saveTarget.getAbsoluteFile());
-            }catch (IOException e){
-                e.printStackTrace();
-            }
+                File saveTarget = new File(photoUrl);
+                if(!saveTarget.getParentFile().exists()){
+                    saveTarget.getParentFile().mkdirs();
+                }
+                //判断是否为图片，否则返回空
+                try{
+                    Image image = ImageIO.read(file.getInputStream());
+                    if(image == null) return null;
+                    file.transferTo(saveTarget.getAbsoluteFile());
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
 
+                if(protocolHostPort != null)
+                    photoUrl = protocolHostPort+"/upload/"+tempFloder+"/"+fileName;
+                photo.setPhotoUrl(photoUrl);
+            }
 
             if(fileDescription != null){
                 photo.setPhotoDescription(fileDescription);
             }else {
                 photo.setPhotoDescription("未添加描述");
             }
-            photoUrl = "/upload/"+tempFloder+"/"+fileName;
-            photo.setPhotoUrl(photoUrl);
+
             photo.setUploadTime(ParseTool.dateToTimestamp(new Date()));
             photoDao.save(photo);
         }

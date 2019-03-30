@@ -9,6 +9,7 @@ import com.wende.spring.boot.wenblog.service.UserService;
 import com.wende.spring.boot.wenblog.util.ParseTool;
 import com.wende.spring.boot.wenblog.util.constant.ArticleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/rest")
+@CrossOrigin
 public class RestAPI {
     @Autowired
     UserService userService;
@@ -52,6 +54,16 @@ public class RestAPI {
                                     @RequestParam(value = "size",defaultValue = ArticleConstant.INDEX_DEFAULT_SIZE)String size,
                                     @RequestParam(value = "sort", defaultValue = ArticleConstant.SORT_BY_ID_ASC)String sort){
         return articleService.findAllPublicArticles(page,size,sort);
+    }
+
+    @RequestMapping("/article/byUUID")
+    public Article getByUUID(@RequestParam(value = "uuid") String uuid){
+        Article article = articleService.findArticleByArticleUUID(uuid);
+        if(article != null){
+            long click = articleService.articleBeClicked(article.getArticleUUID(),authenticationService.getAuthUserId());
+            article.setArticleClick(click);
+        }
+        return article;
     }
 
     //返回所有public的文章

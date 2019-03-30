@@ -17,4 +17,5 @@ public class Photo {
     String photoDescription;
     long albumId;
     Timestamp uploadTime;
+    String photoMD5;
 }
