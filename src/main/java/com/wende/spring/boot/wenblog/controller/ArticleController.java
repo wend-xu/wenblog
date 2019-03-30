@@ -77,7 +77,7 @@ public class ArticleController {
     @RequestMapping("/getall")
     public String getArticle(@RequestParam(value = "page" ,defaultValue = ArticleConstant.INDEX_DEFAULT_PAGE)String page,
                              @RequestParam(value = "size",defaultValue = ArticleConstant.INDEX_DEFAULT_SIZE)String size,
-                             @RequestParam(value = "sort", defaultValue = ArticleConstant.SORT_BY_PUBLIC_TIME_DESC)String sort,
+                             @RequestParam(value = "sort", defaultValue = ArticleConstant.SORT_BY_UPDATE_TIME_DESC)String sort,
                              Model model){
         List<Article> articles = articleService.findAllPublicArticles(page,size,sort);
         long userId = authenticationService.getAuthUserId();
