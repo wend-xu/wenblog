@@ -103,7 +103,8 @@
   var articleId = [[${article.id}]];
   var commentCurrPage = 1;
   var commentPageSize = 8;
-
+  var commentSort = '时间降序';
+  var commentRequestUrl = '/rest/article/comment?sort=desc&';
   layui.config({
       base: '/js/util/'
   }).use(['layer', 'jquery','form','element','util','laytpl','layedit','laypage'], function() {
@@ -120,7 +121,7 @@
 
     window.onload =contentInit();
     function contentInit(){
-      $.getJSON('/rest/article/comment?articleId='+articleId+'&size='+commentPageSize,function (data) {initComment(data);})
+      $.getJSON(commentRequestUrl+'articleId='+articleId+'&size='+commentPageSize,function (data) {initComment(data);})
       editormd.markdownToHTML("markdownToHTML", {
         htmlDecode      : "style,script,iframe",
         emoji           : true,  // 解析表情
@@ -179,7 +180,13 @@
       type:1
       ,title:'评论区'
       ,area:['950px','750px']
-      ,content:$('#comment').html()+"<div style='text-align: center' id='commentPage'></div>"
+      ,content:"<div style='text-align: right'>" +
+                "<button class='layui-btn layui-btn-primary layui-btn-xs' onclick='changeCommentSort()'>"
+                    +commentSort+
+                "</button>" +
+              "</div>"
+              +$('#comment').html()+
+              "<div style='text-align: center' id='commentPage'></div>"
       ,btn: btn
       ,btnAlign: 'c'
       ,yes:function () {
@@ -199,6 +206,22 @@
     })
   }
 
+  function changeCommentSort() {
+    if(commentSort == '时间降序'){
+      commentRequestUrl = '/rest/article/comment?sort=asc&';
+      commentSort = '时间升序'
+    }else{
+      commentRequestUrl = '/rest/article/comment?sort=desc&';
+      commentSort = '时间降序'
+    }
+    layer.closeAll();
+    var load = layer.load();
+    $.getJSON(commentRequestUrl+'articleId='+articleId+'&size='+commentPageSize,function (data) {
+      initComment(data);
+      openCommentArea();
+      layer.close(load);
+    })
+  }
   function pageController(count,page,size,curr,layero){
     layui.laypage.render({
       elem: 'commentPage'
@@ -209,7 +232,7 @@
         page = obj.curr;
         size = obj.limit;
         if(!first){
-          $.getJSON('/rest/article/comment?page='+page+'&size='+size+'&articleId='+articleId,function (data) {
+          $.getJSON(commentRequestUrl+'page='+page+'&size='+size+'&articleId='+articleId,function (data) {
             layero.empty();
             commentCurrPage = page;
             initComment(data);
@@ -292,7 +315,7 @@
       success:function (result) {
         if(result == 'success'){
           layer.msg("发表成功");
-          $.getJSON('/rest/article/comment?articleId='+articleId+'&size='+commentPageSize+'&page='+commentCurrPage,function (data) {
+          $.getJSON(commentRequestUrl+'articleId='+articleId+'&size='+commentPageSize+'&page='+commentCurrPage,function (data) {
               initComment(data);
               layer.closeAll();
               openCommentArea();
@@ -372,7 +395,7 @@
     layer.msg(commentId);
     $.get('/article/comment/delete?commentId='+commentId,function (data) {
         if(data== "success"){
-            $.getJSON('/rest/article/comment?articleId='+articleId+'&size='+commentPageSize+'&page='+commentCurrPage,function (data) {
+            $.getJSON(commentRequestUrl+'articleId='+articleId+'&size='+commentPageSize+'&page='+commentCurrPage,function (data) {
                 initComment(data);
                 layer.closeAll();
                 openCommentArea();
