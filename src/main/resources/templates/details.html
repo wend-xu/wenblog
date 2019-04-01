@@ -161,9 +161,6 @@
       })
       return false;
     })
-
-
-
   })
 
   function reloadElement(type,filter) {
@@ -299,7 +296,8 @@
       }
     }
 
-    if(commentContent == ""){
+    var compare = commentContent.replace(/&nbsp;| /g,'')
+    if(compare == ""){
       layer.msg("未输入内容");
       return;
     }
@@ -436,6 +434,7 @@
       }
     })
   }
+
 </script>
 
 </body>

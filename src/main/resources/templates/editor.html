@@ -12,7 +12,7 @@
     <script src="/js/util/jquery.min.js"></script>
     <script src="/layui/layui.js"></script>
 </head>
-<body >
+<body onbeforeunload="return beforeLeave()">
 <!-- 弹出框 -->
 <div th:replace="part/head::head"></div>
 <div class="layui-container" style="background-color:#F5F5F5;box-shadow:8px 8px 5px #c2c2c2;padding-top: 80px">
@@ -78,6 +78,10 @@
 <script src="/editormd/lib/jquery.flowchart.min.js"></script>
 
 <script th:inline="javascript">
+    function beforeLeave() {
+        return "请确认信息是否已保存！";
+    };
+
     layui.use(['layer', 'jquery','form','element'], function(){
         var testEditor;
         var editMode = [[${mode}]];
@@ -180,6 +184,7 @@
             return false;
         });
 
+        //针对新发布的文章
         function send(articleMode){
             var load = layer.load();
             var content = '';
@@ -206,13 +211,16 @@
                 success:function(data){
                     layer.close(load);
                     if(data != null && data != 'fail'){
-                        location.href = '/article/byUUID?uuid='+data;
+                        if(articleMode == 2){
+                            location.href = '/article/byUUID?uuid='+data;
+                        }else if(articleMode == 1){
+                            layer.msg("草稿保存成功")
+                        }
                     }else{
                         layer.msg("发表失败");
                     }
                 }
             })
-
             return false;
         }
 
@@ -220,6 +228,7 @@
 
         $('#save').on('click',function(){send(1);});
 
+        //针对文章修改
         function update(articleMode) {
             var load = layer.load();
 
@@ -244,8 +253,12 @@
                 },
                 success:function(data){
                     layer.close(load);
-                    if(data == "success"){
-                        location.href = '/article/byUUID?uuid='+[[${article.articleUUID}]];
+                    if(data != null && data != 'fail'){
+                        if(articleMode == 2){
+                            location.href = '/article/byUUID?uuid='+data;
+                        }else if(articleMode == 1){
+                            layer.msg("保存为草稿成功")
+                        }
                     }else{
                         layer.msg("更新失败");
                     }

@@ -298,7 +298,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<ArticleComment> findChildComment(long articleId, long commentId) {
-        return articleCommentDao.findArticleCommentsByCommentArticleIdAndParentId(articleId,commentId);
+        Sort sort = new Sort(Sort.Direction.ASC,"commentTime");
+        return articleCommentDao.findArticleCommentsByCommentArticleIdAndParentId(articleId,commentId,sort);
     }
 
     @Override

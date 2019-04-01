@@ -55,11 +55,19 @@ public class ArticleController {
      * 修改这里的逻辑，每收到一次请求且当前用户未点击过对应的uuid的阅读量+1
      * 需要判断当前用户是否曾经点击或点赞过这篇文章做高亮提示
      * 需要判断当前用户是否为文章的拥有者
+     *
+     * 2019-4-1
+     * 现在如果文章为草稿，直接跳转到编辑页面
      * */
     @RequestMapping("/byUUID")
     public String getByUUID(@RequestParam(value = "uuid") String uuid,Model model){
         Article article = articleService.findArticleByArticleUUID(uuid);
         if(article != null){
+            if(article.getArticleMode() == ArticleConstant.ARTICLE_DRAFT){
+                model.addAttribute("article",article);
+                model.addAttribute("mode","edit");
+                return "editor";
+            }
             long click = articleService.articleBeClicked(article.getArticleUUID(),authenticationService.getAuthUserId());
             article.setArticleClick(click);
             articleService.hasArticleLikeOrClick(article,authenticationService.getAuthUserId());
@@ -168,7 +176,7 @@ public class ArticleController {
         article = articleService.updateArticle(article);
         if(article == null){ return "fail"; }
         model.addAttribute(article);
-        return "success";
+        return article.getArticleUUID();
     }
 
     @PostMapping("/like")
