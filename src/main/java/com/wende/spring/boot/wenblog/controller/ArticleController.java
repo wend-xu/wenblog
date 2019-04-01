@@ -38,14 +38,14 @@ public class ArticleController {
     @RequestMapping("/send")
     @ResponseBody
     public String publicArticle(@RequestBody Article article){
-        if(!article.getArticleTitle().equals("") && article.getArticleContent() != "" && article.getArticleMode() != 0){
+        if(!article.getArticleTitle().trim().equals("") && !article.getArticleContent().trim().equals("") && article.getArticleMode() != 0){
             article.setUserId(authenticationService.getAuthUserId());
             if(article.getArticleMode() == 0){
                 article.setArticleMode(ArticleConstant.ARTICLE_DRAFT);
             }
             article = articleService.createArticle(article);
             if(article != null){
-                return "success";
+                return article.getArticleUUID();
             }
         }
         return "fail";
@@ -153,11 +153,9 @@ public class ArticleController {
 
     @RequestMapping("/edit")
     public String editArticle(@RequestParam(value = "uuid") String uuid,Model model){
-        System.out.println(uuid);
         Article article = articleService.findArticleByArticleUUID(uuid);
         model.addAttribute("article",article);
         model.addAttribute("mode","edit");
-        System.out.println(article.toString());
         return "editor";
     }
 
@@ -207,7 +205,7 @@ public class ArticleController {
         if(requestJSON.has("parentId")){ parentId = requestJSON.getLong("parentId"); }
 
         List<ArticleComment> comments;
-        if(parentId == 0){//不要在public之后直接拿新数据，通过支持分页的新接口拿数据
+        if(parentId == 0){
             comments = articleService.publicComment(articleComment);
         }else{
             articleComment.setParentId(parentId);

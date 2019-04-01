@@ -20,19 +20,19 @@
         <div class="layui-form-item">
             <label class="layui-form-label">文章标题</label>
             <div class="layui-input-block">
-                <input type="text" placeholder="请输入文章标题，最大长度120个汉字"  id="title"  name="title" required  lay-verify="required" autocomplete="off" class="layui-input" th:value="${article.articleTitle}">
+                <textarea class="layui-textarea" placeholder="请输入文章标题，最大长度120个汉字" maxlength="120" rows="3" id="title"  name="title" lay-verify="required" autocomplete="off" th:text="${article.articleTitle}" ></textarea>
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">关键字</label>
             <div class="layui-input-block">
-                <input type="text" placeholder="请输入关键字,最大长度60个汉字" id="keyword"  name="keyword" autocomplete="off" class="layui-input" th:value="${article.articleKeyword}">
+                <input type="text" placeholder="请输入关键字,最大长度50个汉字" maxlength="50" id="keyword"  name="keyword" autocomplete="off" class="layui-input" th:value="${article.articleKeyword}">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label" >文章摘要</label>
             <div class="layui-input-block">
-                <textarea class="layui-textarea" placeholder="请输入简短的摘要,最大长度400个汉字" rows="4" id="summary"  name="summary" autocomplete="off" th:text="${article.articleSummary}" ></textarea>
+                <textarea class="layui-textarea" placeholder="请输入简短的摘要,最大长度400个汉字" maxlength="400" rows="8" id="summary"  name="summary" autocomplete="off" th:text="${article.articleSummary}" ></textarea>
             </div>
         </div>
         <div th:if="${mode} eq 'new'" class="layui-btn-container" style="margin:10px;text-align: center" >
@@ -182,12 +182,14 @@
 
         function send(articleMode){
             var load = layer.load();
-
+            var content = '';
+            if(testEditor != null)
+                content = testEditor.getMarkdown();
             var article = {
                 articleTitle:$('#title').val(),
                 articleKeyword:$('#keyword').val(),
                 articleSummary:$('#summary').val(),
-                articleContent:testEditor.getMarkdown(),
+                articleContent:content,
                 articleMode:articleMode
             }
 
@@ -203,8 +205,8 @@
                 },
                 success:function(data){
                     layer.close(load);
-                    if(data == "success"){
-                        location.href = "/article/getall";
+                    if(data != null && data != 'fail'){
+                        location.href = '/article/byUUID?uuid='+data;
                     }else{
                         layer.msg("发表失败");
                     }
