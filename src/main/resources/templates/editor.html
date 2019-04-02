@@ -211,11 +211,7 @@
                 success:function(data){
                     layer.close(load);
                     if(data != null && data != 'fail'){
-                        if(articleMode == 2){
-                            location.href = '/article/byUUID?uuid='+data;
-                        }else if(articleMode == 1){
-                            layer.msg("草稿保存成功")
-                        }
+                        location.href = '/article/byUUID?uuid='+data;
                     }else{
                         layer.msg("发表失败");
                     }

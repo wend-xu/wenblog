@@ -1,12 +1,12 @@
-create database IF NOT EXISTS blog_1_0;
-USE blog_1_0;
+create database IF NOT EXISTS blog;
+USE blog;
 
 -----------
 -- 1.blog_user 用户表
 -----------
 CREATE TABLE IF NOT EXISTS blog_user (
  -- 登录依据，以下其中之一
- id mediumint(8) NOT NULL AUTO_INCREMENT COMMENT '用户ID', 
+ id mediumint(8) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
  user_phone VARCHAR(16) NOT NULL DEFAULT "NULL" COMMENT '用户手机号码',
  user_email VARCHAR(64) NOT NULL DEFAULT "NULL" COMMENT '用户EMAIL地址',
  user_qq int(10) NOT NULL DEFAULT 0 COMMENT '用户QQ号码',
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS blog_user (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=10000000;
 drop table  blog_user;
 -----------
--- 2.blog_login_history 
+-- 2.blog_login_history
 -- 用户历史登录记录
 -----------
 CREATE TABLE IF NOT EXISTS blog_login_history(
@@ -35,7 +35,7 @@ PRIMARY KEY (id)
 )ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 ;
 
 -----------
--- blog_user_change_history 
+-- blog_user_change_history
 -- 用户历史修改记录
 ---------
 CREATE TABLE IF NOT EXISTS blog_user_change_history(
@@ -70,7 +70,7 @@ create TABLE IF NOT EXISTS blog_user_data(
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 ;
 
 -------------------
--- 4.blog_attention 用户关注表 
+-- 4.blog_attention 用户关注表
 -------------------
 CREATE TABLE IF NOT EXISTS blog_user_attention(
  id mediumint(8) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS blog_article_sort (
  PRIMARY KEY (id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 ;
 
- 
+
 
 ----------------------------
 -- 8.blog_article 文章表
@@ -223,7 +223,7 @@ CREATE TABLE IF NOT EXISTS blog_photo (
  album_id mediumint(8) NOT NULL COMMENT '所属相册ID',
  upload_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '图片上传时间',
  upload_ip VARCHAR(15) NOT NULL COMMENT '图片操作上传IP地址',
- PRIMARY KEY (id) 
+ PRIMARY KEY (id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 ;
 
 ------------------------------

@@ -9,6 +9,7 @@ import com.wende.spring.boot.wenblog.service.UserService;
 import com.wende.spring.boot.wenblog.util.ParseTool;
 import com.wende.spring.boot.wenblog.util.constant.ArticleConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,6 +55,15 @@ public class RestAPI {
                                     @RequestParam(value = "size",defaultValue = ArticleConstant.INDEX_DEFAULT_SIZE)String size,
                                     @RequestParam(value = "sort", defaultValue = ArticleConstant.SORT_BY_ID_ASC)String sort){
         return articleService.findAllPublicArticles(page,size,sort);
+    }
+
+    @RequestMapping("/article/search")
+    public List<Article> searchArticle(@RequestParam(value = "keyword")String keyword,
+                                       @RequestParam(value = "page", defaultValue = ArticleConstant.INDEX_DEFAULT_PAGE)String page,
+                                       @RequestParam(value = "size", defaultValue = ArticleConstant.INDEX_DEFAULT_SIZE)String size,
+                                       @RequestParam(value = "sort", defaultValue = ArticleConstant.SORT_BY_UPDATE_TIME_DESC)String sort
+                                       ){
+        return articleService.search(keyword,ArticleConstant.ARTICLE_PUBLIC,page,size,sort);
     }
 
     @RequestMapping("/article/byUUID")

@@ -263,3 +263,11 @@ public class UserController {
         return jsonObject.toString();
     }
 }
+
+@Controller
+class toIndex{
+    @RequestMapping("/")
+    public String toIndex(){
+        return "redirect:/article/getall";
+    }
+}
