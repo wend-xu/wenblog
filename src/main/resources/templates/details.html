@@ -34,8 +34,9 @@
         <textarea class="layui-textarea" disabled rows="4" id="summary"  name="summary" autocomplete="off" th:text="${article.articleSummary}"></textarea>
       </div>
     </div>
-    <div  th:if="${editable} eq 'editable'" style="text-align:center;padding-left:20%;padding-right:20%;padding-bottom: 40px">
-      <button class="layui-btn layui-btn-warm layui-btn-fluid" id="edit">编辑</button>
+    <div  th:if="${editable} eq 'editable'" class="layui-btn-containe" style="text-align:right;padding-left:5%;padding-right:2%;padding-bottom: 40px">
+      <button class="layui-btn  layui-btn-lg layui-btn-warm" id="edit">编辑</button>
+      <button class="layui-btn  layui-btn-lg layui-btn-danger" id="delete">删除</button>
     </div>
     <div class="layui-row" style="margin-bottom: 10px;padding-left: 10%;padding-right: 2%">
       <div class="layui-col-xs5" th:if="not ${#strings.isEmpty(article.userName)}">
@@ -101,6 +102,7 @@
   var header = $("meta[name='_csrf_header']").attr("content");
   var token =$("meta[name='_csrf']").attr("content");
   var articleId = [[${article.id}]];
+  var articleUUID = [[${article.articleUUID}]];
   var commentCurrPage = 1;
   var commentPageSize = 8;
   var commentSort = '时间降序';
@@ -139,9 +141,23 @@
         }
       }
     });
+    
+    $('#delete').click(function () {
+      layer.confirm('确认删除文章？', function(index){
+        //do something
+        $.get("/article/delete?uuid="+articleUUID,function (data) {
+          if(data == 'success'){
+            layer.msg('删除成功')
+            location.href = "/article/getall"
+          }else{
+            layer.msg(data);
+          }
+        })
+      });
+      return false;
+    })
 
     $('#edit').click(function () {
-      var articleUUID = [[${article.articleUUID}]];
       $.ajax({
         url:"/check/alive",
         type:"post",

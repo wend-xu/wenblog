@@ -67,6 +67,8 @@ public class ArticleController {
                 model.addAttribute("article",article);
                 model.addAttribute("mode","edit");
                 return "editor";
+            }else if(article.getArticleMode() == ArticleConstant.ARTICLE_DELETE){
+                return "redirect:/article/getall";
             }
             long click = articleService.articleBeClicked(article.getArticleUUID(),authenticationService.getAuthUserId());
             article.setArticleClick(click);
@@ -187,6 +189,12 @@ public class ArticleController {
             return "未登录";
         }
         return articleService.articleLike(uuid,authenticationService.getAuthUserId())+"";
+    }
+
+    @RequestMapping("/delete")
+    @ResponseBody
+    public String dropArticle(@RequestParam(value = "uuid") String uuid){
+        return articleService.deleteArticle(uuid);
     }
 
     @RequestMapping("/comment/public")

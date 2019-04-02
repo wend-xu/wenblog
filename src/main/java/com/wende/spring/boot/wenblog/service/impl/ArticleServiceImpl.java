@@ -254,6 +254,15 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public String deleteArticle(String uuid) {
+        Article article = articleDao.findArticleByArticleUUID(uuid);
+        if(article == null || article.getArticleMode() == ArticleConstant.ARTICLE_DELETE){ return "文章不存在"; }
+        article.setArticleMode(ArticleConstant.ARTICLE_DELETE);
+        articleDao.save(article);
+        return "success";
+    }
+
+    @Override
     public List<ArticleComment> findArticleComment(long articleId,int page,int size,String sort) {
         Sort resultSort;
         if(sort != null && sort.contains("asc")){

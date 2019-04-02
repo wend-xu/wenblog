@@ -49,6 +49,8 @@ public interface ArticleService {
 
     long searchResultCount(String keyword,int mode);
 
+    String deleteArticle(String uuid);
+
     List<ArticleComment> findArticleComment(long articleId,int page,int size,String sort);
 
     List<ArticleComment> findArticleComment(String articleId,String page,String size,String sort);

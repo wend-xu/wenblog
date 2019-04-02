@@ -44,6 +44,7 @@
         <div  th:if="${mode} eq 'edit'" class="layui-btn-container" style="margin:10px;text-align: center">
             <button id="preview" class="layui-btn" value="0">切换Markdown</button>
             <button id="showEditor" class="layui-btn">打开编辑器</button>
+            <button id="deleteDraft" class="layui-btn">删除草稿</button>
             <button id="updateToDraft" class="layui-btn">保存为草稿</button>
             <button id="updateAndSend" class="layui-btn">保存并发表</button>
         </div>
@@ -78,6 +79,8 @@
 <script src="/editormd/lib/jquery.flowchart.min.js"></script>
 
 <script th:inline="javascript">
+    var articleUUID = [[${article.articleUUID}]];
+
     function beforeLeave() {
         return "请确认信息是否已保存！";
     };
@@ -223,6 +226,21 @@
         $('#send').on('click',function(){send(2);});
 
         $('#save').on('click',function(){send(1);});
+
+        $('#deleteDraft').click(function () {
+            layer.confirm('确认删除文章？', function(index){
+                //do something
+                $.get("/article/delete?uuid="+articleUUID,function (data) {
+                    if(data == 'success'){
+                        layer.msg('删除成功')
+                        location.href = "/article/getall"
+                    }else{
+                        layer.msg(data);
+                    }
+                })
+            });
+            return false;
+        })
 
         //针对文章修改
         function update(articleMode) {

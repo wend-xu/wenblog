@@ -69,7 +69,10 @@ public class RestAPI {
     @RequestMapping("/article/byUUID")
     public Article getByUUID(@RequestParam(value = "uuid") String uuid){
         Article article = articleService.findArticleByArticleUUID(uuid);
-        if(article != null){
+
+        if(article == null || article.getArticleMode() == ArticleConstant.ARTICLE_DELETE) return new Article();
+
+        if( article.getArticleMode() == ArticleConstant.ARTICLE_PUBLIC){
             long click = articleService.articleBeClicked(article.getArticleUUID(),authenticationService.getAuthUserId());
             article.setArticleClick(click);
         }
