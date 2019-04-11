@@ -40,7 +40,8 @@ public class ArticleController {
     public String publicArticle(@RequestBody Article article){
         if(!article.getArticleTitle().trim().equals("") && !article.getArticleContent().trim().equals("") && article.getArticleMode() != 0){
             article.setUserId(authenticationService.getAuthUserId());
-            if(article.getArticleMode() == 0){
+            int mode = article.getArticleMode();
+            if(mode != ArticleConstant.ARTICLE_DRAFT || mode != ArticleConstant.ARTICLE_PUBLIC){
                 article.setArticleMode(ArticleConstant.ARTICLE_DRAFT);
             }
             article = articleService.createArticle(article);

@@ -26,7 +26,7 @@ public class Article {
     private Timestamp lastUpdateTime;
     private long articleClick;
     private long articleLike;
-    private int articleSortId;
+    //private int articleSortId;
     private long userId;
     private String userName;
     private int articleMode;

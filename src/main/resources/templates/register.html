@@ -98,6 +98,8 @@
             var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
             if(!(useremail.match(reg))){
                 layer.msg("邮箱格式错误");
+                $('#ewr').removeAttr('hidden');
+                $('#eri').attr('hidden','hidden');
                 return false;
             }
             //alert(user);
@@ -133,7 +135,7 @@
                 $('#ri').attr('hidden','hidden');
                 layer.msg('用户名应为2~24位的字母，数字或下划线');
             }else{
-                $('#ri').removeAttr('hideen');
+                $('#ri').removeAttr('hidden');
                 $('#wr').attr('hidden','hidden');
             }
         })

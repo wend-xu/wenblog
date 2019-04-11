@@ -16,12 +16,10 @@ import com.wende.spring.boot.wenblog.domain.user.User;
 import com.wende.spring.boot.wenblog.domain.user.UserData;
 import com.wende.spring.boot.wenblog.service.UserService;
 import com.wende.spring.boot.wenblog.util.ParseTool;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
