@@ -123,6 +123,7 @@
 
     window.onload =contentInit();
     function contentInit(){
+      var load = layer.load();
       $.getJSON(commentRequestUrl+'articleId='+articleId+'&size='+commentPageSize,function (data) {initComment(data);})
       editormd.markdownToHTML("markdownToHTML", {
         htmlDecode      : "style,script,iframe",
@@ -132,6 +133,7 @@
         flowChart       : true,  // 默认不解析
         sequenceDiagram : true  // 默认不解析
       });
+      layer.close(load);
     }
     util.fixbar({
       bar1:'&#xe63a',
