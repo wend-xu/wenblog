@@ -1,5 +1,6 @@
 ### wenblog
 毕设作品 一个简洁的博客
+预览：https://www.endxu.cn/article/getall
 
 ### 如何启动
 #### 请修改application.properties以下属性：
@@ -36,4 +37,4 @@ wenblog.user.default.headportrait
 3. 对于返回的JSON数据的处理，也不是合理，系统中直接返回一个装载POJO类的LIST或直接返回POJO的方式，如果是真的大型项目，这种做法带来的不一致性并不合理。    
 4. 本想在搜索功能引入elasticsearch，由于毕设的时间比较紧张放弃了。因为我不懂elasticsearch的语法只是对这个技术有了解，虽然通过JPA可以直接使用，但是这对我也没有好处。
 
-所以，这个博客在满足毕设的情况下就暂停开发了，去多多学习，学无止境，厚积薄发。    
+所以，这个博客在满足毕设的情况下就暂停开发了，去多多学习，学无止境，厚积薄发。 
