@@ -18,7 +18,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.formLogin().loginPage("/user/loginpage").permitAll().and()
                 .authorizeRequests()
                 .antMatchers("/css/**", "/js/**","/img/**", "/editormd/**","/layui/**","/upload/**","/test.md").permitAll()//静态资源
-                .antMatchers("/user/register","/user/index","/user/login","/user/authUserId").permitAll()//登录注册主页不拦截
+                .antMatchers("/user/register","/user/registerpage","/user/index","/user/login","/user/authUserId").permitAll()//登录注册主页不拦截
                 .antMatchers("/article/getall","/article/byUUID","/article/like").permitAll()
                 .antMatchers("/check/**").permitAll()
                 .antMatchers("/rest/**").permitAll()//restApi走token认证

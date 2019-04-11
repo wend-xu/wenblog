@@ -110,6 +110,7 @@
   layui.config({
       base: '/js/util/'
   }).use(['layer', 'jquery','form','element','util','laytpl','layedit','laypage'], function() {
+    var load = layer.load();
     var element = layui.element;
     var laytpl = layui.laytpl;
     var layedit = layui.layedit;
@@ -123,7 +124,6 @@
 
     window.onload =contentInit();
     function contentInit(){
-      var load = layer.load();
       $.getJSON(commentRequestUrl+'articleId='+articleId+'&size='+commentPageSize,function (data) {initComment(data);})
       editormd.markdownToHTML("markdownToHTML", {
         htmlDecode      : "style,script,iframe",

@@ -72,7 +72,7 @@ public class UserController {
         return "userdata";
     }
 
-    @GetMapping("/register")
+    @GetMapping("/registerpage")
     public String registerPage() { return  "register"; }
 
     @GetMapping("/head")

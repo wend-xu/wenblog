@@ -3,6 +3,10 @@
 预览：https://www.endxu.cn/article/getall
 
 ### 如何启动
+#### 依赖：
+1. JDK:build.gradle中为11，使用8自行更改
+2. Mysql: 5.X或8.X，使用5.X需要需改驱动
+3. Tomcat：测试过9，理论上8也一样没问题但没测试过
 #### 请修改application.properties以下属性：
 ```
 spring.datasource.driver-class-name //5.7以下请修改为com.mysql.jdbc.Driver
